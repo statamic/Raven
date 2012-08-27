@@ -1,0 +1,44 @@
+#########################################################
+#
+# Raven default emailer parameters
+#
+#########################################################
+
+# Choose your mail service
+#  available services:
+#  - mandrill
+#  - mailgun
+#  - postmark
+#  - sendgrid
+mail_service: mandrill
+
+# chosen mail service's api key
+api_key: 84c5cfcf-644b-47b7-b5b6-26d2c1daab9a # mandrill
+
+# api_key: 2313e590-d71b-452e-bb37-9780c610516d # Postmark
+
+# true = mail on, false = mail off
+killswitch_engaged: false
+
+default_mail_set:
+
+  # default recipient's email address
+  to: mcawesome@example.com
+
+  # optionally cc additional recipients
+  cc:
+
+  # optionally bcc additional recipients
+  bcc:
+
+  # Sender's email
+  from: interesting@example.com
+
+  # default subject line
+  subject: Example subject line
+
+  # name of html template in your theme to send
+  html_template:
+
+  # name of text template in your theme to send
+  text_template:
