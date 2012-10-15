@@ -38,7 +38,7 @@ class Plugin_raven extends Plugin {
   var $cookie_config   = 'r_con';
 
   public function __construct() {
-    $this->app = Slim::getInstance();
+    $this->app = \Slim\Slim::getInstance();
     $this->config = Spyc::YAMLLoad('_config/add-ons/raven.yaml');
   }
 
