@@ -36,6 +36,7 @@ class Plugin_raven extends Plugin {
   var $cookie_required = 'r_req';
   var $cookie_allowed  = 'r_all';
   var $cookie_config   = 'r_con';
+  static $sent = false;
 
   public function __construct() {
     $this->app = \Slim\Slim::getInstance();
@@ -69,7 +70,7 @@ class Plugin_raven extends Plugin {
       
       $mailer_config_options = array();
       foreach ($mailer_config_available_options as $option) {
-        if ($set = $this->fetch_param($option, false)) {
+        if ($set = $this->fetch_param($option, false, false, false, false)) {
           $mailer_config_options[$option] = $set;
         }
       }
@@ -152,12 +153,16 @@ class Plugin_raven extends Plugin {
       // }
 
       $message->setSubject($mailer_config['subject']);
+
       $message->setCc($mailer_config['cc']);
       $message->setBcc($mailer_config['bcc']);
 
       // Returns Boolean true on success or throws an HttpException for error
-      if ( ! $this->config['killswitch_engaged']) {
+      if ( ! $this->config['killswitch_engaged'] && self::$sent !== true) {
         $this->template_vars['success'] = $mailer->send($message);
+        self::$sent = true;
+      } else {
+        $this->template_vars['success'] = true;
       }
       
     }
