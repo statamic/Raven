@@ -1,0 +1,43 @@
+{{ if raven:success }}
+  <h1>BOOM BABY!</h1>
+{{ endif }}
+
+{{ raven:errors }}
+    
+  {{ if missing }}
+  <div class="error-block">
+    <h2>Missing fields:</h2>
+    <ul>
+      {{ missing }}
+        <li><strong>{{ field }}</strong></li>
+      {{ /missing }}
+    </ul>
+  </div>
+  {{ endif }}
+
+  {{ if invalid }}
+  <div class="error-block">
+    <h2>Invalid fields:</h2>
+    <ul>
+      {{ invalid }}
+        <li><strong>{{ field }}</strong>: {{ message }}</li>
+      {{ /invalid }}
+    </ul>
+  </div>
+  {{ endif }}
+
+{{ /raven:errors }}
+
+
+<div class="form-block">
+{{ raven:form formset="contact" return="success" }}
+
+  <input type="text" name="name" value="Batman" />
+  <input type="email" name="name" value="batman@example.com" />
+  <input type="text" name="website" value="http://batman.com" />
+  <input type="text" name="zipcode" value="12345" />
+  <input type="text" name="kill" value="This field will be removed" />
+  <input type="submit" value="Submit" />
+
+{{ /raven:form }}
+</div>
