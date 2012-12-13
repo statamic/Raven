@@ -23,7 +23,7 @@ class Hooks_raven extends Hooks {
     |--------------------------------------------------------------------------
     |
     | We're going to assume success = true here to simplify code readability.
-    | Checks already exist for require and validation so we simply flip the 
+    | Checks already exist for require and validation so we simply flip the
     | switch there.
     |
     */
@@ -41,7 +41,7 @@ class Hooks_raven extends Hooks {
     | cleaner $submission variable.
     |
     */
-   
+
     $hidden = $_POST['hidden'];
     unset($_POST['hidden']);
     $submission = $_POST;
@@ -55,7 +55,7 @@ class Hooks_raven extends Hooks {
     | to allow per-form overrides.
     |
     */
-   
+
     $formset = Yaml::parse('_config/add-ons/raven/formsets/' . $hidden['formset'] . '.yaml');
     $config  = array_merge($this->config, $formset);
 
@@ -67,8 +67,8 @@ class Hooks_raven extends Hooks {
     | We jump through some PHP hoops here to filter, sanitize and validate
     | our form inputs.
     |
-    */ 
-   
+    */
+
     $allowed_fields   = array_flip($formset['allowed']);
     $required_fields  = array_flip($formset['required']);
     $validation_rules = isset($formset['validate']) ? $formset['validate'] : array();
@@ -80,11 +80,11 @@ class Hooks_raven extends Hooks {
     | Allowed fields
     |--------------------------------------------------------------------------
     |
-    | It's best to only allow a set of predetermined fields to cut down on 
+    | It's best to only allow a set of predetermined fields to cut down on
     | spam and misuse.
     |
     */
-   
+
     if (count($allowed_fields) > 0) {
       $submission = array_intersect_key($submission, $allowed_fields);
     }
@@ -99,7 +99,7 @@ class Hooks_raven extends Hooks {
     | and sending back an array of missing fields.
     |
     */
-   
+
     if (count($required_fields) > 0) {
       $missing = array_flip(array_diff_key($required_fields, array_filter($submission)));
 
@@ -123,7 +123,7 @@ class Hooks_raven extends Hooks {
     | as specified in the formset.
     |
     */
-   
+
     $invalid = $this->validate($submission, $validation_rules);
 
     # Prepare a data array of fields and error messages use for template display
@@ -155,18 +155,18 @@ class Hooks_raven extends Hooks {
 
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
-        $this->save($submission, $config['submission_save_path'], array_get($config, 'prefix', ''));
+        $this->save($submission, $config['submission_save_path'], array_get($config, 'file_prefix', ''));
       }
 
       # Shall we send?
       if (array_get($config, 'send_notification_email', false) === true) {
         $this->send($submission, $config);
       }
-      
+
       # Shall we...dance?
       URL::redirect(URL::format($return));
 
-    } else {      
+    } else {
       $errors['success'] = false;
 
       Session::set_flash('raven', $errors);
@@ -196,20 +196,20 @@ class Hooks_raven extends Hooks {
    *
    * @return bool
    **/
-  private function handle_validation_rule($field, $rule) {
-    
-    if ( ! is_array($rule)) {
-        return v::$rule()->validate($field);
-    } else {
+  private function handle_validation_rule($field, $rule)
+  {
+    $spawn = new v;
 
-      $spawn = new v;
+    if ( ! is_array($rule)) {
+      $spawn->addRule(v::buildRule($rule));
+    } else {
       foreach ($rule as $rule => $params) {
-        # make sure params are an array
-        $params = ! is_array($params) ? (array) $params : $params;
+        $params = ! is_array($params) ? (array) $params : $params; # make sure params are an array
         $spawn->addRule(v::buildRule($rule, $params));
       }
-      return $spawn->validate($field);
     }
+
+    return $spawn->validate($field);
   }
 
   /**
@@ -217,17 +217,21 @@ class Hooks_raven extends Hooks {
    *
    * @return void
    **/
-  private function save($data, $location, $prefix = '') {
+  private function save($data, $location, $prefix = '')
+  {
+    if (array_get($this->config, 'master_killswitch')) return;
 
     if ( ! File::exists($location)) {
       File::mkdir($location);
     }
-    
-    $filename = $location . $prefix . date('Y-m-d-Gi', time());
 
-    # Add an incrementer in the event two forms are submitted in the same minute
+    $prefix = $prefix != '' ? $prefix . '-' : $prefix;
+
+    $filename = $location . $prefix . date('Y-m-d-Gi-s', time());
+
+    # Ensure a unique filename in the event two forms are submitted in the same second
     if (File::exists($filename.'.yaml')) {
-      for ($i=1; $i < 360; $i++) {
+      for ($i=1; $i < 60; $i++) {
         if ( ! file_exists($filename.'-'.$i.'.yaml')) {
           $filename = $filename.'-'.$i;
           break;
@@ -236,7 +240,7 @@ class Hooks_raven extends Hooks {
     }
 
     $yaml = Yaml::dump(array_map('trim', $data));
-    
+
     File::put($filename . '.yaml', $yaml);
   }
 
@@ -247,10 +251,18 @@ class Hooks_raven extends Hooks {
    **/
   private function send($submission, $config)
   {
+    if (array_get($this->config, 'master_killswitch')) return;
+
     $email = array_get($config, 'email', false);
     if ($email) {
       $attributes = array_intersect_key($email, array_flip(Email::$allowed));
-      
+
+      if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
+        $automagic_email = self::build_automagic_email($submission);
+        $attributes['html'] = $automagic_email['html'];
+        $attributes['text'] = $automagic_email['text'];
+      }
+
       if ($html_template = array_get($email, 'html_template', false)) {
         $attributes['html'] = Parse::template(Theme::get_template($html_template), $submission);
       }
@@ -259,10 +271,28 @@ class Hooks_raven extends Hooks {
         $attributes['text'] = Parse::template(Theme::get_template($text_template), $submission);
       }
 
-      $attributes['mail_handler']     = $config['mail_handler'];
-      $attributes['mail_handler_key'] = $config['mail_handler_key'];
+      $attributes['email_handler']     = array_get($config, 'email_handler', false);
+      $attributes['email_handler_key'] = array_get($config, 'email_handler_key', false);
 
       Email::send($attributes);
     }
+  }
+
+  /**
+   * Assemble a simple key:value email
+   *
+   * @return void
+   * @author
+   **/
+  private static function build_automagic_email($submission)
+  {
+    $the_magic = array('html' => '', 'text' => '');
+
+    foreach($submission as $key => $value) {
+      $the_magic['html'] .= "<strong>" . $key . "</strong>: " . $value . "<br><br>";
+      $the_magic['text'] .= $key . ": " . $value . "\n";
+    }
+
+    return $the_magic;
   }
 }

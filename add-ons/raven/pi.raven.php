@@ -40,7 +40,7 @@ class Plugin_raven extends Plugin {
     | more smoothly. Form attributes are accepted as colon/piped options:
     | Example: attr="class:form|id:contact-form"
     |
-    | The contents of the tagpair are inserted back into the template
+    | Note: The content of the tag pair is inserted back into the template
     |
     */
     

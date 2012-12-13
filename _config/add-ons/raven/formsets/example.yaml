@@ -1,0 +1,66 @@
+###########################################################################################
+#
+#  EXAMPLE RAVEN FORMSET
+#
+#  Formsets can override any default settings (raven.yaml) EXCEPT master_killswitch
+#
+###########################################################################################
+
+# Location (from root) to save form submissions
+submission_save_path: _content/_forms/
+
+# Prefix your files with a string which are saved in the format:
+# YYYY-MM-DD-HH-MM-SS.yaml
+file_prefix: contact
+
+# Fields allowed to be submitted in the form, automatically
+# purging anything and everything else
+allowed:
+  - name
+  - website
+  - favorite_number
+  - birthday
+
+# You are not required to require fields, but once you do, any missing
+# from the POST will squash this submission and send a list of
+# missing fields to your {{ raven:errors }} tagpair
+required:
+  - name
+
+# Apply validation rules to specific fields. Refer to documentation
+# for a full list of available rules and their format
+validate:
+  name: alpha
+  favorite_number:
+    int:
+    positive:
+    between:
+      - 100
+      - 999
+  website: domain
+  birthday:
+    minimumAge: 21
+
+# Error messages can be mapped to your fields and passed to the
+# template upon failure. They will be available here:
+#
+# {{ raven:error }}
+#     {{ invalid }}
+#         {{ field }} : {{ message }}
+#     {{ /invalid }}
+# {{ /raven:error }}
+#
+messages:
+  name: "Must be made of letters. Who named you?"
+  website: "That's not a website. Are you from the past?"
+  birthday: "You need to be 21 to drink. Come back later."
+  favorite_number: "Ahem. I said 3 digit number."
+
+# Configure notification email
+email:
+  to: jack@jackmcdade.com
+  from: jack@statamic.com
+  subject: The raven has flown
+  automagic: true
+  # html_template: html_email
+  # text_template: text_email

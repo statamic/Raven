@@ -1,0 +1,29 @@
+###########################################################################################
+#
+#  RAVEN CONFIG AND DEFAULT SETTINGS
+#
+#  All of these settings (except the master killswitch) can be overriden in a formset
+#
+###########################################################################################
+
+# Form submissions can be saved to YAML files
+submission_save_to_file: true
+
+# Location (from root) to save form submissions
+submission_save_path: _content/_forms/
+
+send_notification_email: true
+
+# Choose your mail service
+# available services:
+#    - mandrill
+#    - mailgun
+#    - postmark
+#    - sendgrid
+email_handler: mandrill
+
+# chosen mail service's api key
+email_handler_key: 74050ece-be5c-44cc-a73c-a8d75edb6739
+
+
+master_killswitch: true
