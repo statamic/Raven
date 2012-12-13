@@ -198,8 +198,9 @@ class Hooks_raven extends Hooks {
    **/
   private function handle_validation_rule($field, $rule)
   {
-    $spawn = new v;
+    if ($field == '') return true; # only validate non-empty fields.
 
+    $spawn = new v;
     if ( ! is_array($rule)) {
       $spawn->addRule(v::buildRule($rule));
     } else {
