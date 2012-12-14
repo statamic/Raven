@@ -29,7 +29,7 @@ class Plugin_raven extends Plugin {
     */
 
     $formset = $this->fetch_param('formset', false);
-    $return  = $this->fetch_param('return', URL::current());
+    $return  = $this->fetch_param('return', URL::getCurrent());
 
     /*
     |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ class Plugin_raven extends Plugin {
     | Note: The content of the tag pair is inserted back into the template
     |
     */
-    
+
     $attributes_string = '';
 
     if ($attr = $this->fetch_param('attr', false)) {
@@ -55,10 +55,10 @@ class Plugin_raven extends Plugin {
 
     $html  = "<form method='post' action='TRIGGER/raven/process' {$attributes_string}>\n";
     $html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
-    $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";  
+    $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
     $html .= $this->content;
     $html .= "</form>";
-    
+
     return $html;
 
   }
@@ -72,7 +72,7 @@ class Plugin_raven extends Plugin {
    **/
   public function success()
   {
-    return Session::get_flash('raven:success');
+    return Session::getFlash('raven:success');
   }
 
   /**
@@ -84,10 +84,10 @@ class Plugin_raven extends Plugin {
    **/
   public function errors()
   {
-    if ($errors = Session::get_flash('raven')) {
+    if ($errors = Session::getFlash('raven')) {
       return Parse::template($this->content, $errors);
     }
-    
+
     return false;
   }
 }

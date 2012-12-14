@@ -73,7 +73,7 @@ class Hooks_raven extends Hooks {
     $required_fields  = array_flip($formset['required']);
     $validation_rules = isset($formset['validate']) ? $formset['validate'] : array();
     $messages         = isset($formset['messages']) ? $formset['messages'] : array();
-    $return           = isset($hidden['return']) ? $hidden['return'] : Config::site_root();
+    $return           = isset($hidden['return']) ? $hidden['return'] : Config::getSiteRoot();
 
     /*
     |--------------------------------------------------------------------------
@@ -151,7 +151,7 @@ class Hooks_raven extends Hooks {
     */
 
     if ($success) {
-      Session::set_flash('raven', array('success' => true));
+      Session::setFlash('raven', array('success' => true));
 
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
@@ -169,7 +169,7 @@ class Hooks_raven extends Hooks {
     } else {
       $errors['success'] = false;
 
-      Session::set_flash('raven', $errors);
+      Session::setFlash('raven', $errors);
       URL::redirect(URL::format($return));
     }
   }
@@ -183,7 +183,7 @@ class Hooks_raven extends Hooks {
     $invalid = array();
     foreach ($rules as $key => $rule) {
       if (isset($fields[$key])) {
-        if ( ! $this->handle_validation_rule($fields[$key], $rules[$key])) {
+        if ( ! $this->handleValidationRule($fields[$key], $rules[$key])) {
           $invalid[] = $key;
         }
       }
@@ -196,7 +196,7 @@ class Hooks_raven extends Hooks {
    *
    * @return bool
    **/
-  private function handle_validation_rule($field, $rule)
+  private function handleValidationRule($field, $rule)
   {
     if ($field == '') return true; # only validate non-empty fields.
 
@@ -223,7 +223,7 @@ class Hooks_raven extends Hooks {
     if (array_get($this->config, 'master_killswitch')) return;
 
     if ( ! File::exists($location)) {
-      File::mkdir($location);
+      Directory::make($location);
     }
 
     $prefix = $prefix != '' ? $prefix . '-' : $prefix;
@@ -259,17 +259,17 @@ class Hooks_raven extends Hooks {
       $attributes = array_intersect_key($email, array_flip(Email::$allowed));
 
       if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
-        $automagic_email = self::build_automagic_email($submission);
+        $automagic_email = $this->buildAutomagicEmail($submission);
         $attributes['html'] = $automagic_email['html'];
         $attributes['text'] = $automagic_email['text'];
       }
 
       if ($html_template = array_get($email, 'html_template', false)) {
-        $attributes['html'] = Parse::template(Theme::get_template($html_template), $submission);
+        $attributes['html'] = Parse::template(Theme::getTemplate($html_template), $submission);
       }
 
       if ($text_template = array_get($email, 'text_template', false)) {
-        $attributes['text'] = Parse::template(Theme::get_template($text_template), $submission);
+        $attributes['text'] = Parse::template(Theme::getTemplate($text_template), $submission);
       }
 
       $attributes['email_handler']     = array_get($config, 'email_handler', false);
@@ -285,7 +285,7 @@ class Hooks_raven extends Hooks {
    * @return void
    * @author
    **/
-  private static function build_automagic_email($submission)
+  private function buildAutomagicEmail($submission)
   {
     $the_magic = array('html' => '', 'text' => '');
 
