@@ -57,10 +57,10 @@ messages:
   favorite_number: "Ahem. I said 3 digit number."
 
 # Configure notification email
-email:
-  to: jack@jackmcdade.com
-  from: jack@statamic.com
-  subject: The raven has flown
-  automagic: true
+# email:
+#   to: guy@example.com
+#   from: dude@example.com
+#   subject: The raven has flown
+#   automagic: true
   # html_template: html_email
   # text_template: text_email

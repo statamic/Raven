@@ -26,4 +26,4 @@ email_handler: mandrill
 email_handler_key: 74050ece-be5c-44cc-a73c-a8d75edb6739
 
 
-master_killswitch: true
+master_killswitch: false
