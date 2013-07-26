@@ -69,7 +69,7 @@ class Plugin_raven extends Plugin {
     |
     */
 
-    $html .= Hook::run('raven_inside_form', 'cumulative', '');
+    $html .= Hook::run('raven', 'inside_form', 'cumulative', '');
 
     /*
     |--------------------------------------------------------------------------
@@ -81,7 +81,7 @@ class Plugin_raven extends Plugin {
     |
     */
 
-    $html .= Hook::run('raven_content_preparse', 'replace', $this->content, $this->content);
+    $html .= Hook::run('raven', 'content_preparse', 'replace', $this->content, $this->content);
 
     $html .= "</form>";
 

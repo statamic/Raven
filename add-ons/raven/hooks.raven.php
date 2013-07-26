@@ -85,7 +85,7 @@ class Hooks_raven extends Hooks {
     | Required fields
     |--------------------------------------------------------------------------
     |
-    | Required fields aren't required (ironic-five!), but if any are set
+    | Requiring fields isnt't required (ironic-five!), but if any are specified
     | and missing from the POST, we'll be squashing this submission right here
     | and sending back an array of missing fields.
     |
