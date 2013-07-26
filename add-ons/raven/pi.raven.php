@@ -6,7 +6,7 @@ class Plugin_raven extends Plugin {
 
   public $meta = array(
     'name'       => 'Raven',
-    'version'    => '0.9.9',
+    'version'    => '1.0',
     'author'     => 'Jack McDade',
     'author_url' => 'http://jackmcdade.com'
   );
