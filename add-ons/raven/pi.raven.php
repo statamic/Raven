@@ -1,7 +1,5 @@
 <?php
 
-use Respect\Validation\Validator as v;
-
 class Plugin_raven extends Plugin {
 
   public $meta = array(

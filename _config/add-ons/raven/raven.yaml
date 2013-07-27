@@ -10,7 +10,7 @@
 submission_save_to_file: true
 
 # Location (from root) to save form submissions
-submission_save_path: _content/_forms/
+submission_save_path: _forms/
 
 send_notification_email: true
 
@@ -20,10 +20,9 @@ send_notification_email: true
 #    - mailgun
 #    - postmark
 #    - sendgrid
-email_handler: mandrill
+email_handler:
 
 # chosen mail service's api key
-email_handler_key: 74050ece-be5c-44cc-a73c-a8d75edb6739
-
+email_handler_key:
 
 master_killswitch: false

@@ -1,6 +1,16 @@
 <?php
 
+use Respect\Validation\Validator as v;
+
 class Hooks_raven extends Hooks {
+
+  public function __construct()
+  {
+    $loader = new SplClassLoader('respect', __DIR__ . '/vendor/');
+    $loader->register();
+
+    parent::__construct();
+  }
 
   /**
    * Process a form submission
@@ -47,6 +57,7 @@ class Hooks_raven extends Hooks {
     | to allow per-form overrides.
     |
     */
+
     $formset = Yaml::parse('_config/add-ons/raven/formsets/' . $hidden['formset'] . '.yaml');
     $config  = array_merge($this->config, $formset, array('formset' => $hidden['formset']));
 
@@ -85,7 +96,7 @@ class Hooks_raven extends Hooks {
     | Required fields
     |--------------------------------------------------------------------------
     |
-    | Requiring fields isnt't required (ironic-five!), but if any are specified
+    | Requiring fields isn't required (ironic-five!), but if any are specified
     | and missing from the POST, we'll be squashing this submission right here
     | and sending back an array of missing fields.
     |
