@@ -172,7 +172,10 @@ class Hooks_raven extends Hooks {
       Session::setFlash('raven', array('success' => true));
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
-        $this->save($submission, $config['submission_save_path'], array_get($config, 'file_prefix', ''));
+        $file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
+        $file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
+
+        $this->save($submission, $config['submission_save_path'], $file_prefix, $file_suffix);
       }
 
       # Shall we send?
@@ -250,7 +253,7 @@ class Hooks_raven extends Hooks {
    *
    * @return void
    **/
-  private function save($data, $location, $prefix = '')
+  private function save($data, $location, $prefix = '', $suffix = '')
   {
     if (array_get($this->config, 'master_killswitch')) return;
 
@@ -262,7 +265,7 @@ class Hooks_raven extends Hooks {
 
     $prefix = $prefix != '' ? $prefix . '-' : $prefix;
 
-    $filename = $location . $prefix . date('Y-m-d-Gi-s', time());
+    $filename = $location . $prefix . date('Y-m-d-Gi-s', time()) . $suffix;
 
     # Ensure a unique filename in the event two forms are submitted in the same second
     if (File::exists($filename . '.' . $EXT)) {

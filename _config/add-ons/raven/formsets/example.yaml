@@ -11,7 +11,11 @@ submission_save_path: _content/_forms/
 
 # Prefix your files with a string which are saved in the format:
 # YYYY-MM-DD-HH-MM-SS.yaml
-file_prefix: contact
+# file_prefix: contact
+
+# Prefix your files with a string which are saved in the format:
+# YYYY-MM-DD-HH-MM-SS.yaml
+# file_suffix: - {{ name }}
 
 # Fields allowed to be submitted in the form, automatically
 # purging anything and everything else
