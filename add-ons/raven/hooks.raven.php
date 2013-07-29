@@ -300,11 +300,26 @@ class Hooks_raven extends Hooks {
       }
 
       if ($html_template = array_get($email, 'html_template', false)) {
-        $attributes['html'] = Parse::template(Theme::getTemplate($html_template), $submission);
+        $attributes['html'] = Theme::getTemplate($html_template);
       }
 
       if ($text_template = array_get($email, 'text_template', false)) {
-        $attributes['text'] = Parse::template(Theme::getTemplate($text_template), $submission);
+        $attributes['text'] = Theme::getTemplate($text_template);
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | Parse all fields
+      |--------------------------------------------------------------------------
+      |
+      | All email settings are parsed with the form data, allowing you, for
+      | example, to send an email to a submitted email address.
+      |
+      |
+      */
+
+      foreach ($attributes as $key => $value) {
+        $attributes[$key] = Parse::template($value, $submission);
       }
 
       $attributes['email_handler']     = array_get($config, 'email_handler', false);
