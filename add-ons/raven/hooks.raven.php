@@ -175,7 +175,7 @@ class Hooks_raven extends Hooks {
         $file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
         $file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
 
-        $this->save($submission, $config['submission_save_path'], $file_prefix, $file_suffix);
+        $this->save($submission, $config, $config['submission_save_path'], $file_prefix, $file_suffix);
       }
 
       # Shall we send?
@@ -253,11 +253,12 @@ class Hooks_raven extends Hooks {
    *
    * @return void
    **/
-  private function save($data, $location, $prefix = '', $suffix = '')
+  private function save($data, $config, $location, $prefix = '', $suffix = '')
   {
+
     if (array_get($this->config, 'master_killswitch')) return;
 
-    $EXT = array_get($this->config, 'submission_save_extension', 'yaml');
+    $EXT = array_get($config, 'submission_save_extension', 'yaml');
 
     if ( ! File::exists($location)) {
       Folder::make($location);
