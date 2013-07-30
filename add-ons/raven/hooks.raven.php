@@ -151,11 +151,10 @@ class Hooks_raven extends Hooks {
     |
     */
 
-    $success = Hook::run('raven', 'pre_process', $success, array(
+    $success = Hook::run('raven', 'pre_process', 'replace', $success, array(
       'submission' => $submission,
       'config' => $config)
     );
-
     /*
     |--------------------------------------------------------------------------
     | Finalize & determine action
