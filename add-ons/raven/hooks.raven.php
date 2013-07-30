@@ -57,8 +57,14 @@ class Hooks_raven extends Hooks {
     | to allow per-form overrides.
     |
     */
+    $formset = $hidden['formset'] . '.yaml';
 
-    $formset = Yaml::parse('_config/add-ons/raven/formsets/' . $hidden['formset'] . '.yaml');
+    if (File::exists('_config/add-ons/raven/formsets/' . $formset)) {
+      $formset = Yaml::parse('_config/add-ons/raven/formsets/' . $formset);
+    } elseif (File::exists('_config/formsets/' . $formset)) {
+      $formset = Yaml::parse('_config/formsets/' . $formset);
+    }
+
     $config  = array_merge($this->config, $formset, array('formset' => $hidden['formset']));
 
    /*
