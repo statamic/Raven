@@ -6,7 +6,7 @@ class Hooks_raven extends Hooks {
 
   public function __construct()
   {
-    $loader = new SplClassLoader('respect', __DIR__ . '/vendor/');
+    $loader = new SplClassLoader('Respect', __DIR__ . '/vendor/');
     $loader->register();
 
     parent::__construct();
