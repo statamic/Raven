@@ -57,12 +57,14 @@ class Hooks_raven extends Hooks {
     | to allow per-form overrides.
     |
     */
-    $formset = $hidden['formset'] . '.yaml';
+    $formset = array_get($hidden, 'formset', null) . '.yaml';
 
     if (File::exists('_config/add-ons/raven/formsets/' . $formset)) {
       $formset = Yaml::parse('_config/add-ons/raven/formsets/' . $formset);
     } elseif (File::exists('_config/formsets/' . $formset)) {
       $formset = Yaml::parse('_config/formsets/' . $formset);
+    } else {
+      $formset = array();
     }
 
     $config  = array_merge($this->config, $formset, array('formset' => $hidden['formset']));
@@ -204,6 +206,7 @@ class Hooks_raven extends Hooks {
       );
 
       # Shall we...dance?
+
       URL::redirect(URL::format($return));
 
     } else {

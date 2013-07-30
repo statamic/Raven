@@ -115,4 +115,15 @@ class Plugin_raven extends Plugin {
     return false;
   }
 
+  public function has_errors()
+  {
+    if ($errors = Session::getFlash('raven')) {
+      if (is_array(array_get($errors, 'invalid')) || is_array(array_get($errors, 'missing'))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
 }
