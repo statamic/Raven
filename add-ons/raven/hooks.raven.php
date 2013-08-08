@@ -16,7 +16,7 @@ class Hooks_raven extends Hooks {
    * Process a form submission
    *
    * @return void
-   **/
+   */
   public function raven__process() {
 
     /*
@@ -74,7 +74,7 @@ class Hooks_raven extends Hooks {
 
     $config  = array_merge($this->config, $formset, array('formset' => $hidden['formset']));
 
-   /*
+    /*
     |--------------------------------------------------------------------------
     | Prep filters
     |--------------------------------------------------------------------------
@@ -225,8 +225,10 @@ class Hooks_raven extends Hooks {
   /**
    * Loop through fields and filter them through individual validation rules
    *
+   * @param array  $fields  Array of fields
+   * @param array  $rules  Array of rules to validate with
    * @return array
-   **/
+   */
   private function validate($fields, $rules) {
     $invalid = array();
     foreach ($rules as $key => $rule) {
@@ -242,8 +244,10 @@ class Hooks_raven extends Hooks {
   /**
    * Smart method to process fields, regardless of data type
    *
+   * @param string  $field  Field to validate
+   * @param mixed  $rule  Rule (or rules) to chain and validate with
    * @return bool
-   **/
+   */
   private function handleValidationRule($field, $rule)
   {
     if ($field == '') return true; # only validate non-empty fields.
@@ -252,9 +256,9 @@ class Hooks_raven extends Hooks {
     if ( ! is_array($rule)) {
       $spawn->addRule(v::buildRule($rule));
     } else {
-      foreach ($rule as $rule => $params) {
+      foreach ($rule as $rule_key => $params) {
         $params = ! is_array($params) ? (array) $params : $params; # make sure params are an array
-        $spawn->addRule(v::buildRule($rule, $params));
+        $spawn->addRule(v::buildRule($rule_key, $params));
       }
     }
 
@@ -264,8 +268,13 @@ class Hooks_raven extends Hooks {
   /**
    * Save submission to file
    *
+   * @param array  $data  Array of values to store
+   * @param array  $config  Array of configuration values
+   * @param string  $location  Path to folder where submissions should be saved
+   * @param string  $prefix  Filename prefix to use for submission file
+   * @param string  $suffix  Filename suffix to use for submission file
    * @return void
-   **/
+   */
   private function save($data, $config, $location, $prefix = '', $suffix = '')
   {
 
@@ -300,8 +309,10 @@ class Hooks_raven extends Hooks {
   /**
    * Send a notification/response email
    *
+   * @param array  $submission  Array of submitted values
+   * @param array  $config  Array of config values
    * @return void
-   **/
+   */
   private function send($submission, $config)
   {
     if (array_get($this->config, 'master_killswitch')) return;
@@ -349,9 +360,9 @@ class Hooks_raven extends Hooks {
   /**
    * Assemble a simple key:value email
    *
-   * @return void
-   * @author
-   **/
+   * @param array  $submission  Array of submitted values
+   * @return array
+   */
   private function buildAutomagicEmail($submission)
   {
     $the_magic = array('html' => '', 'text' => '');
