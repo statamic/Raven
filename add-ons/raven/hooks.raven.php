@@ -66,6 +66,11 @@ class Hooks_raven extends Hooks {
     } else {
       $formset = array();
     }
+      
+    if (!is_array($this->config)) {
+      $this->log->warn('Could not find the config file.');
+      $this->config = array();
+    }
 
     $config  = array_merge($this->config, $formset, array('formset' => $hidden['formset']));
 
