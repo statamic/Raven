@@ -1,10 +1,8 @@
 <?php
-
 namespace Respect\Validation\Rules;
 
 class CountryCode extends AbstractRule
 {
-
     protected $countryCodeList = array(
         'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AW',
         'AX', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BL', 'BM', 'BN',
@@ -24,11 +22,11 @@ class CountryCode extends AbstractRule
         'SY', 'SZ', 'TC', 'TD', 'TF', 'TG', 'TH', 'TJ', 'TK', 'TL', 'TM', 'TN', 'TO', 'TR',
         'TT', 'TV', 'TW', 'TZ', 'UA', 'UG', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE', 'VG',
         'VI', 'VN', 'VU', 'WF', 'WS', 'YE', 'YT', 'ZA', 'ZM', 'ZW'
-);
+    );
 
     public function validate($input)
     {
         return in_array(strtoupper($input), $this->countryCodeList);
     }
-
 }
+
