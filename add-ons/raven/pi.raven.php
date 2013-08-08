@@ -53,7 +53,7 @@ class Plugin_raven extends Plugin {
       }
     }
 
-    $html  = "<form method='post' action='TRIGGER/raven/process' {$attributes_string}>\n";
+    $html  = "<form method='post' action='" . Path::tidy(Config::getSiteRoot() . "TRIGGER/raven/process") . "' {$attributes_string}>\n";
     $html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
     $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
 
