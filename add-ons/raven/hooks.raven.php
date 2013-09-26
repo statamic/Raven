@@ -16,7 +16,7 @@ class Hooks_raven extends Hooks {
 
     if (array_get($_POST, 'hidden:raven')) {
 
-      $result = $this->process()) {
+      $result = $this->process();
       $app = \Slim\Slim::getInstance();
 
       $app->config = array_merge($app->config, $result);
