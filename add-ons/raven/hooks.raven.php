@@ -12,12 +12,23 @@ class Hooks_raven extends Hooks {
     parent::__construct();
   }
 
+  public function core__render_before() {
+
+    if (array_get($_POST, 'hidden:raven')) {
+
+      $result = $this->process()) {
+      $app = \Slim\Slim::getInstance();
+
+      $app->config = array_merge($app->config, $result);
+    }
+  }
+
   /**
    * Process a form submission
    *
    * @return void
    */
-  public function raven__process() {
+  private function process() {
 
     /*
     |--------------------------------------------------------------------------
@@ -66,7 +77,7 @@ class Hooks_raven extends Hooks {
     } else {
       $formset = array();
     }
-      
+
     if (!is_array($this->config)) {
       $this->log->warn('Could not find the config file.');
       $this->config = array();
@@ -88,7 +99,7 @@ class Hooks_raven extends Hooks {
     $required_fields  = array_flip(array_get($formset, 'required', array()));
     $validation_rules = isset($formset['validate']) ? $formset['validate'] : array();
     $messages         = isset($formset['messages']) ? $formset['messages'] : array();
-    $return           = isset($hidden['return']) ? $hidden['return'] : Config::getSiteRoot();
+    $return           = array_get($hidden, 'return', false);
 
     /*
     |--------------------------------------------------------------------------
@@ -210,15 +221,16 @@ class Hooks_raven extends Hooks {
         'config' => $config)
       );
 
-      # Shall we...dance?
+      if ($return) {
+        URL::redirect(URL::format($return));
+      }
 
-      URL::redirect(URL::format($return));
+      return array('raven' => array('success' => true));
 
     } else {
       $errors['success'] = false;
 
-      Session::setFlash('raven', $errors);
-      URL::redirect(URL::format($return));
+      return array('raven' => $errors);
     }
   }
 

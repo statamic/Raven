@@ -29,7 +29,9 @@ class Plugin_raven extends Plugin {
     */
 
     $formset = $this->fetchParam('formset', false);
-    $return  = $this->fetchParam('return', URL::getCurrent());
+    $return  = $this->fetchParam('return', false);
+
+    $data = array('value' => $_POST);
 
     /*
     |--------------------------------------------------------------------------
@@ -53,9 +55,12 @@ class Plugin_raven extends Plugin {
       }
     }
 
-    $html  = "<form method='post' action='" . Path::tidy(Config::getSiteRoot() . "TRIGGER/raven/process") . "' {$attributes_string}>\n";
+    $html  = "<form method='post' {$attributes_string}>\n";
+    $html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
     $html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
-    $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
+    if ($return) {
+      $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -83,7 +88,7 @@ class Plugin_raven extends Plugin {
 
     $html .= "</form>";
 
-    return $html;
+    return Parse::Template($html, $data);
 
   }
 
@@ -96,7 +101,9 @@ class Plugin_raven extends Plugin {
    **/
   public function success()
   {
-    return Session::getFlash('raven:success');
+    $raven = Config::get('raven', false);
+
+    return array_get($raven, 'success', false);
   }
 
   /**
@@ -108,7 +115,7 @@ class Plugin_raven extends Plugin {
    **/
   public function errors()
   {
-    if ($errors = Session::getFlash('raven')) {
+    if ($errors = Config::get('raven')) {
       return Parse::template($this->content, $errors);
     }
 
@@ -117,7 +124,7 @@ class Plugin_raven extends Plugin {
 
   public function has_errors()
   {
-    if ($errors = Session::getFlash('raven')) {
+    if ($errors = Config::get('raven')) {
       if (is_array(array_get($errors, 'invalid')) || is_array(array_get($errors, 'missing'))) {
         return true;
       }
