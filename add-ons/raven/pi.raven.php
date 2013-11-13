@@ -31,7 +31,8 @@ class Plugin_raven extends Plugin {
     $formset = $this->fetchParam('formset', false);
     $return  = $this->fetchParam('return', false);
 
-    $data = array('value' => $_POST);
+    // Sanitize data before returning it for display
+    $data = array('value' => filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING));
 
     /*
     |--------------------------------------------------------------------------
