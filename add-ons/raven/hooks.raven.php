@@ -12,7 +12,7 @@ class Hooks_raven extends Hooks {
     parent::__construct();
   }
 
-  public function core__render_before() {
+  public function _routes__before() {
 
     if (array_get($_POST, 'hidden:raven')) {
 
@@ -294,6 +294,9 @@ class Hooks_raven extends Hooks {
 
     $EXT = array_get($config, 'submission_save_extension', 'yaml');
 
+    // Clean up whitespace
+    $data = array_map('trim', $data);
+
     if ( ! File::exists($location)) {
       Folder::make($location);
     }
@@ -312,10 +315,14 @@ class Hooks_raven extends Hooks {
       }
     }
 
-    $yaml = Yaml::dump(array_map('trim', $data)) . '---';
+    $filename .= '.' . $EXT;
 
+    if ($EXT === 'json') {
+      File::put($filename, json_encode($data));
+    } else {
+      File::put($filename, Yaml::dump($data) . '---');
+    }
 
-    File::put($filename . '.' . $EXT, $yaml);
   }
 
   /**
