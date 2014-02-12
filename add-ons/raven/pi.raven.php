@@ -102,9 +102,7 @@ class Plugin_raven extends Plugin {
    **/
   public function success()
   {
-    $raven = Config::get('raven', false);
-
-    return array_get($raven, 'success', false);
+    return $this->flash->get('success');
   }
 
   /**

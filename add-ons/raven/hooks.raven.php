@@ -184,7 +184,7 @@ class Hooks_raven extends Hooks {
 
     if ($success) {
 
-      Session::setFlash('raven', array('success' => true));
+      $this->flash->set('success', true);
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
         $file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
