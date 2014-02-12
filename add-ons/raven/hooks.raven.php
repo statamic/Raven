@@ -4,14 +4,6 @@ use Respect\Validation\Validator as v;
 
 class Hooks_raven extends Hooks {
 
-  public function __construct()
-  {
-    $loader = new SplClassLoader('Respect', __DIR__ . '/vendor/');
-    $loader->register();
-
-    parent::__construct();
-  }
-
   public function _routes__before() {
 
     if (array_get($_POST, 'hidden:raven')) {
