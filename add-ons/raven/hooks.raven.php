@@ -4,7 +4,7 @@ use Respect\Validation\Validator as v;
 
 class Hooks_raven extends Hooks {
 
-  public function _routes__before() {
+  public function request__post() {
 
     if (array_get($_POST, 'hidden:raven')) {
 
@@ -34,8 +34,6 @@ class Hooks_raven extends Hooks {
     */
     $success = true;
     $errors = array();
-
-    # Pull out any hidden fields intended to help processing
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +68,7 @@ class Hooks_raven extends Hooks {
       $formset = array();
     }
 
-    if (!is_array($this->config)) {
+    if ( ! is_array($this->config)) {
       $this->log->warn('Could not find the config file.');
       $this->config = array();
     }
@@ -184,7 +182,7 @@ class Hooks_raven extends Hooks {
 
     if ($success) {
 
-      $this->flash->set('success', true);
+      $this->blink->set('success', true);
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
         $file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
@@ -293,9 +291,31 @@ class Hooks_raven extends Hooks {
       Folder::make($location);
     }
 
-    $prefix = $prefix != '' ? $prefix . '-' : $prefix;
 
-    $filename = $location . $prefix . date('Y-m-d-Gi-s', time()) . $suffix;
+    if ($format = array_get($config, 'filename_format')) {
+
+      $now = time();
+
+      $time_variables = array(
+        'year' => date('Y', $now),
+        'month' => date('m', $now),
+        'day' => date('d', $now),
+        'hour' => date('G', $now),
+        'minute' => date('i', $now),
+        'second' => date('s', $now)
+      );
+
+      $available_variables = $time_variables + $data;
+
+      $filename = Parse::template($format, $available_variables);
+
+    } else {
+      $prefix = $prefix != '' ? $prefix . '-' : $prefix;
+      $filename = $prefix . date('Y-m-d-Gi-s', time()) . $suffix;
+    }
+
+    // Put it in the right folder
+    $filename = $location . $filename;
 
     # Ensure a unique filename in the event two forms are submitted in the same second
     if (File::exists($filename . '.' . $EXT)) {

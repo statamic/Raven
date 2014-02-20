@@ -7,23 +7,15 @@
 ###########################################################################################
 
 # Location (from root) to save form submissions
-submission_save_path: _content/_forms/
-
-# Prefix your files with a string which are saved in the format:
-# YYYY-MM-DD-HH-MM-SS.yaml
-# file_prefix: contact
-
-# Prefix your files with a string which are saved in the format:
-# YYYY-MM-DD-HH-MM-SS.yaml
-# file_suffix: - {{ name }}
+submission_save_path: _forms/
 
 # Fields allowed to be submitted in the form, automatically
 # purging anything and everything else
 allowed:
   - name
   - website
-  - favorite_number
-  - birthday
+  - email
+  - years
 
 # You are not required to require fields, but once you do, any missing
 # from the POST will squash this submission and send a list of
@@ -31,19 +23,14 @@ allowed:
 required:
   - name
 
+submission_save_extension: yaml
+
 # Apply validation rules to specific fields. Refer to documentation
 # for a full list of available rules and their format
 validate:
   name: alpha
-  favorite_number:
-    int:
-    positive:
-    between:
-      - 100
-      - 999
   website: domain
-  birthday:
-    minimumAge: 21
+  years: int
 
 # Error messages can be mapped to your fields and passed to the
 # template upon failure. They will be available here:
@@ -57,8 +44,7 @@ validate:
 messages:
   name: "Must be made of letters. Who named you?"
   website: "That's not a website. Are you from the past?"
-  birthday: "You need to be 21 to drink. Come back later."
-  favorite_number: "Ahem. I said 3 digit number."
+  years: "That needs to be a number"
 
 # Configure notification email
 email:

@@ -3,10 +3,10 @@
 class Plugin_raven extends Plugin {
 
   public $meta = array(
-    'name'       => 'Raven',
-    'version'    => '1.1.1',
-    'author'     => 'Statamic',
-    'author_url' => 'http://statamic.com'
+	'name'       => 'Raven',
+	'version'    => '1.1.2',
+	'author'     => 'Statamic',
+	'author_url' => 'http://statamic.com'
   );
 
   /**
@@ -18,78 +18,80 @@ class Plugin_raven extends Plugin {
    */
   public function form()
   {
-    /*
-    |--------------------------------------------------------------------------
-    | Formset
-    |--------------------------------------------------------------------------
-    |
-    | Raven really needs a formset to make it useful and secure. We may even
-    | write a form decorator in the future to generate forms from formsets.
-    |
-    */
 
-    $formset = $this->fetchParam('formset', false);
-    $return  = $this->fetchParam('return', false);
+	// dd(Hook::isEnabled('routes', 'before'));
+	/*
+	|--------------------------------------------------------------------------
+	| Formset
+	|--------------------------------------------------------------------------
+	|
+	| Raven really needs a formset to make it useful and secure. We may even
+	| write a form decorator in the future to generate forms from formsets.
+	|
+	*/
 
-    // Sanitize data before returning it for display
-    $data = array('value' => filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING));
+	$formset = $this->fetchParam('formset', false);
+	$return  = $this->fetchParam('return', false);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Form HTML
-    |--------------------------------------------------------------------------
-    |
-    | Raven writes a few hidden fields to the form to help processing data go
-    | more smoothly. Form attributes are accepted as colon/piped options:
-    | Example: attr="class:form|id:contact-form"
-    |
-    | Note: The content of the tag pair is inserted back into the template
-    |
-    */
+	// Sanitize data before returning it for display
+	$data = array('value' => filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING));
 
-    $attributes_string = '';
+	/*
+	|--------------------------------------------------------------------------
+	| Form HTML
+	|--------------------------------------------------------------------------
+	|
+	| Raven writes a few hidden fields to the form to help processing data go
+	| more smoothly. Form attributes are accepted as colon/piped options:
+	| Example: attr="class:form|id:contact-form"
+	|
+	| Note: The content of the tag pair is inserted back into the template
+	|
+	*/
 
-    if ($attr = $this->fetchParam('attr', false)) {
-      $attributes_array = Helper::explodeOptions($attr, true);
-      foreach ($attributes_array as $key => $value) {
-        $attributes_string .= " {$key}='{$value}'";
-      }
-    }
+	$attributes_string = '';
 
-    $html  = "<form method='post' {$attributes_string}>\n";
-    $html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
-    $html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
-    if ($return) {
-      $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
-    }
+	if ($attr = $this->fetchParam('attr', false)) {
+	  $attributes_array = Helper::explodeOptions($attr, true);
+	  foreach ($attributes_array as $key => $value) {
+		$attributes_string .= " {$key}='{$value}'";
+	  }
+	}
 
-    /*
-    |--------------------------------------------------------------------------
-    | Hook: Form Begin
-    |--------------------------------------------------------------------------
-    |
-    | Occurs in the middle the form allowing additional fields to be added.
-    | Has access to the current fieldset. Must return HTML.
-    |
-    */
+	$html  = "<form method='post' {$attributes_string}>\n";
+	$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
+	$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
+	if ($return) {
+	  $html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
+	}
 
-    $html .= Hook::run('raven', 'inside_form', 'cumulative', '');
+	/*
+	|--------------------------------------------------------------------------
+	| Hook: Form Begin
+	|--------------------------------------------------------------------------
+	|
+	| Occurs in the middle the form allowing additional fields to be added.
+	| Has access to the current fieldset. Must return HTML.
+	|
+	*/
 
-    /*
-    |--------------------------------------------------------------------------
-    | Hook: Content Preparse
-    |--------------------------------------------------------------------------
-    |
-    | Allows the modification of the tag data inside the form. Also has access
-    | to the current formset.
-    |
-    */
+	$html .= Hook::run('raven', 'inside_form', 'cumulative', '');
 
-    $html .= Hook::run('raven', 'content_preparse', 'replace', $this->content, $this->content);
+	/*
+	|--------------------------------------------------------------------------
+	| Hook: Content Preparse
+	|--------------------------------------------------------------------------
+	|
+	| Allows the modification of the tag data inside the form. Also has access
+	| to the current formset.
+	|
+	*/
 
-    $html .= "</form>";
+	$html .= Hook::run('raven', 'content_preparse', 'replace', $this->content, $this->content);
 
-    return Parse::Template($html, $data);
+	$html .= "</form>";
+
+	return Parse::Template($html, $data);
 
   }
 
@@ -102,7 +104,11 @@ class Plugin_raven extends Plugin {
    **/
   public function success()
   {
-    return $this->flash->get('success');
+	if ($this->blink->get('success') || $this->flash->get('sucesss')) {
+	  return true;
+	}
+
+	return false;
   }
 
   /**
@@ -114,22 +120,22 @@ class Plugin_raven extends Plugin {
    **/
   public function errors()
   {
-    if ($errors = Config::get('raven')) {
-      return Parse::template($this->content, $errors);
-    }
+	if ($errors = Config::get('raven')) {
+	  return Parse::template($this->content, $errors);
+	}
 
-    return false;
+	return false;
   }
 
   public function has_errors()
   {
-    if ($errors = Config::get('raven')) {
-      if (is_array(array_get($errors, 'invalid')) || is_array(array_get($errors, 'missing'))) {
-        return true;
-      }
-    }
+	if ($errors = Config::get('raven')) {
+	  if (is_array(array_get($errors, 'invalid')) || is_array(array_get($errors, 'missing'))) {
+		return true;
+	  }
+	}
 
-    return false;
+	return false;
   }
 
 }
