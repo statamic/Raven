@@ -89,7 +89,8 @@ class Hooks_raven extends Hooks {
     $required_fields  = array_flip(array_get($formset, 'required', array()));
     $validation_rules = isset($formset['validate']) ? $formset['validate'] : array();
     $messages         = isset($formset['messages']) ? $formset['messages'] : array();
-    $return           = array_get($hidden, 'return', false);
+    $referrer         = Request::getReferrer();
+    $return           = array_get($hidden, 'return', $referrer);
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +183,6 @@ class Hooks_raven extends Hooks {
 
     if ($success) {
 
-      $this->blink->set('success', true);
       # Shall we save?
       if (array_get($config, 'submission_save_to_file', false) === true) {
         $file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
@@ -195,6 +195,7 @@ class Hooks_raven extends Hooks {
       if (array_get($config, 'send_notification_email', false) === true) {
         $this->send($submission, $config);
       }
+
 
       /*
       |--------------------------------------------------------------------------
@@ -211,16 +212,13 @@ class Hooks_raven extends Hooks {
         'config' => $config)
       );
 
-      if ($return) {
-        URL::redirect(URL::format($return));
-      }
-
-      return array('raven' => array('success' => true));
+      $this->flash->set('success', true);
+      URL::redirect(URL::format($return));
 
     } else {
-      $errors['success'] = false;
-
-      return array('raven' => $errors);
+      $this->flash->set('success', false);
+      $this->flash->set('errors', $errors);
+      URL::redirect($referrer);
     }
   }
 
