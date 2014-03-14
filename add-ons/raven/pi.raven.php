@@ -35,7 +35,7 @@ class Plugin_raven extends Plugin {
 		*/
 
 		$formset = $this->fetchParam('formset', false);
-		$return  = $this->fetchParam('return', false);
+		$return  = $this->fetchParam('return', URL::getCurrent());
 
 		// Sanitize data before returning it for display
 		$old_values = array_map('htmlspecialchars', $this->flash->get('old_values', array()));
@@ -70,9 +70,7 @@ class Plugin_raven extends Plugin {
 		$html  = "<form method='post' {$attributes_string}>\n";
 		$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
 		$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
-		if ($return) {
-			$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
-		}
+		$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
 
 		/*
 		|--------------------------------------------------------------------------
