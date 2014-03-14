@@ -301,7 +301,9 @@ class Hooks_raven extends Hooks {
         'day' => date('d', $now),
         'hour' => date('G', $now),
         'minute' => date('i', $now),
-        'second' => date('s', $now)
+        'minutes' => date('i', $now),
+        'second' => date('s', $now),
+        'seconds' => date('s', $now)
       );
 
       $available_variables = $time_variables + $data;
