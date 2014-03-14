@@ -218,6 +218,7 @@ class Hooks_raven extends Hooks {
     } else {
       $this->flash->set('success', false);
       $this->flash->set('errors', $errors);
+      $this->flash->set('old_values', $_POST);
       URL::redirect($referrer);
     }
   }

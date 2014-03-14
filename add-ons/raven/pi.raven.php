@@ -38,7 +38,12 @@ class Plugin_raven extends Plugin {
 		$return  = $this->fetchParam('return', false);
 
 		// Sanitize data before returning it for display
-		$data = array('value' => filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING));
+		$old_values = array_map('htmlspecialchars', $this->flash->get('old_values', array()));
+
+		// Set old values to re-populate the form
+		$data = array();
+		array_set($data, 'value', $old_values);
+		array_set($data, 'old_values', $old_values);
 
 		/*
 		|--------------------------------------------------------------------------
