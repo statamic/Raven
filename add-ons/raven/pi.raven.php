@@ -9,11 +9,6 @@ class Plugin_raven extends Plugin {
 		'author_url' => 'http://statamic.com'
 	);
 
-	public function test()
-	{
-		return true;
-	}
-
   /**
    * Raven form tag pair
    *
