@@ -91,6 +91,7 @@ class Hooks_raven extends Hooks {
     $messages         = isset($formset['messages']) ? $formset['messages'] : array();
     $referrer         = Request::getReferrer();
     $return           = array_get($hidden, 'return', $referrer);
+    $error_return     = array_get($hidden, 'error_return', $referrer);
 
     /*
     |--------------------------------------------------------------------------
@@ -219,7 +220,7 @@ class Hooks_raven extends Hooks {
       $this->flash->set('success', false);
       $this->flash->set('errors', $errors);
       $this->flash->set('old_values', $_POST);
-      URL::redirect($referrer);
+      URL::redirect(URL::format($error_return));
     }
   }
 

@@ -29,8 +29,9 @@ class Plugin_raven extends Plugin {
 		|
 		*/
 
-		$formset = $this->fetchParam('formset', false);
-		$return  = $this->fetchParam('return', URL::getCurrent());
+		$formset      = $this->fetchParam('formset', false);
+		$return       = $this->fetchParam('return', URL::getCurrent());
+		$error_return = $this->fetchParam('error_return', URL::getCurrent());
 
 		// Sanitize data before returning it for display
 		$old_values = array_map('htmlspecialchars', $this->flash->get('old_values', array()));
@@ -66,6 +67,7 @@ class Plugin_raven extends Plugin {
 		$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
 		$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
 		$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
+		$html .= "<input type='hidden' name='hidden[error_return]' value='{$error_return}' />\n";
 
 		/*
 		|--------------------------------------------------------------------------
