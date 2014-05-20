@@ -194,7 +194,7 @@ class Hooks_raven extends Hooks {
 
       # Shall we send?
       if (array_get($config, 'send_notification_email', false) === true) {
-        $this->send($submission, $config);
+        $this->sendEmails($submission, $config);
       }
 
 
@@ -340,18 +340,39 @@ class Hooks_raven extends Hooks {
   }
 
   /**
-   * Send a notification/response email
+   * Initiate sending of email(s)
    *
    * @param array  $submission  Array of submitted values
    * @param array  $config  Array of config values
    * @return void
    */
-  private function send($submission, $config)
+  private function sendEmails($submission, $config)
   {
     if (array_get($this->config, 'master_killswitch')) return;
 
     $email = array_get($config, 'email', false);
-    if ($email) {
+
+    // Single email
+    if ($email && isset($email['to'])) {
+      $this->send($submission, $email, $config);
+    }
+    // Multiple emails
+    else {
+      foreach ($email as $e) {
+        $this->send($submission, $e, $config);
+      }
+    }
+  }
+
+  /**
+   * Send a notification/response email
+   *
+   * @param array $submission Array of submitted values
+   * @param array $email Array of email config values
+   * @param array $config Array of config values
+   */
+  private function send($submission, $email, $config){
+
       $attributes = array_intersect_key($email, array_flip(Email::$allowed));
 
       if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
@@ -387,7 +408,6 @@ class Hooks_raven extends Hooks {
       $attributes['email_handler_key'] = array_get($config, 'email_handler_key', false);
 
       Email::send($attributes);
-    }
   }
 
   /**
