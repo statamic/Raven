@@ -373,41 +373,41 @@ class Hooks_raven extends Hooks {
    */
   private function send($submission, $email, $config){
 
-      $attributes = array_intersect_key($email, array_flip(Email::$allowed));
+    $attributes = array_intersect_key($email, array_flip(Email::$allowed));
 
-      if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
-        $automagic_email = $this->buildAutomagicEmail($submission);
-        $attributes['html'] = $automagic_email['html'];
-        $attributes['text'] = $automagic_email['text'];
-      }
+    if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
+      $automagic_email = $this->buildAutomagicEmail($submission);
+      $attributes['html'] = $automagic_email['html'];
+      $attributes['text'] = $automagic_email['text'];
+    }
 
-      if ($html_template = array_get($email, 'html_template', false)) {
-        $attributes['html'] = Theme::getTemplate($html_template);
-      }
+    if ($html_template = array_get($email, 'html_template', false)) {
+      $attributes['html'] = Theme::getTemplate($html_template);
+    }
 
-      if ($text_template = array_get($email, 'text_template', false)) {
-        $attributes['text'] = Theme::getTemplate($text_template);
-      }
+    if ($text_template = array_get($email, 'text_template', false)) {
+      $attributes['text'] = Theme::getTemplate($text_template);
+    }
 
-      /*
-      |--------------------------------------------------------------------------
-      | Parse all fields
-      |--------------------------------------------------------------------------
-      |
-      | All email settings are parsed with the form data, allowing you, for
-      | example, to send an email to a submitted email address.
-      |
-      |
-      */
+    /*
+    |--------------------------------------------------------------------------
+    | Parse all fields
+    |--------------------------------------------------------------------------
+    |
+    | All email settings are parsed with the form data, allowing you, for
+    | example, to send an email to a submitted email address.
+    |
+    |
+    */
 
-      foreach ($attributes as $key => $value) {
-        $attributes[$key] = Parse::template($value, $submission);
-      }
+    foreach ($attributes as $key => $value) {
+      $attributes[$key] = Parse::template($value, $submission);
+    }
 
-      $attributes['email_handler']     = array_get($config, 'email_handler', false);
-      $attributes['email_handler_key'] = array_get($config, 'email_handler_key', false);
+    $attributes['email_handler']     = array_get($config, 'email_handler', false);
+    $attributes['email_handler_key'] = array_get($config, 'email_handler_key', false);
 
-      Email::send($attributes);
+    Email::send($attributes);
   }
 
   /**
