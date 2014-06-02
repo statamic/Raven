@@ -237,6 +237,27 @@ class Hooks_raven extends Hooks {
     }
   }
 
+  public function control_panel__add_routes()
+  {
+
+    $app = \Slim\Slim::getInstance();
+
+    // Account
+    // --------------------------------------------------------
+    $app->get('/raven', function() use ($app) {
+      authenticateForRole('admin');
+      doStatamicVersionCheck($app);
+
+      $template_list = array("raven");
+      Statamic_View::set_templates(array_reverse($template_list));
+
+      $raven = Addon::getAPI('raven');
+      
+      $app->render(null, array('route' => 'raven', 'app' => $app) + $raven->getControlPanelData());
+
+    })->name('raven');
+  }
+
   /**
    * Loop through fields and filter them through individual validation rules
    *
