@@ -27,9 +27,7 @@ class Hooks_raven extends Hooks {
 			$template_list = array("raven-overview");
 			Statamic_View::set_templates(array_reverse($template_list));
 
-			$raven = Addon::getAPI('raven');
-
-			$app->render(null, array('route' => 'raven', 'app' => $app) + $raven->getOverviewData());
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getOverviewData());
 
 		})->name('raven');
 
@@ -40,9 +38,7 @@ class Hooks_raven extends Hooks {
 			$template_list = array("raven-detail");
 			Statamic_View::set_templates(array_reverse($template_list));
 
-			$raven = Addon::getAPI('raven');
-
-			$app->render(null, array('route' => 'raven', 'app' => $app) + $raven->getFormsetData($formset));
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetData($formset));
 
 		});
 	}

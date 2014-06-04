@@ -2,7 +2,7 @@
 
 use Symfony\Component\Finder\Finder as Finder;
 
-class API_raven extends API
+class Tasks_raven extends Tasks
 {
 	public function getOverviewData($formset=false)
 	{
@@ -114,22 +114,12 @@ class API_raven extends API
 
 		$metrics = array();
 		foreach ($operations as $config) {
-			switch ($config['type']) {
-				case "unique":
-					$metrics[] = $this->metricUnique($config, $data);
-					break;
-				case "tally":
-					$metrics[] = $this->metricTally($config, $data);
-					break;
-				case "count":
-					$metrics[] = $this->metricCount($config, $data);
-					break;
-				case "average":
-					$metrics[] = $this->metricAverage($config, $data);
-					break;
-				case "median":
-					$metrics[] = $this->metricMedian($config, $data);
-					break;
+			
+			$type = $config['type'];
+			$method = Helper::camelCase('metric_' . $type);
+			
+			if (is_callable(array($this, $method), false)) {
+			    $metrics[] = $this->$method($config, $data);
 			}
 		}
 
