@@ -114,9 +114,7 @@ class Tasks_raven extends Tasks
 
 		$metrics = array();
 		foreach ($operations as $config) {
-			
-			$type = $config['type'];
-			$method = Helper::camelCase('metric_' . $type);
+			$method = Helper::camelCase('metric_' . $config['type']);
 			
 			if (is_callable(array($this, $method), false)) {
 			    $metrics[] = $this->$method($config, $data);
