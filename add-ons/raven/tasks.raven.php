@@ -161,6 +161,18 @@ class Tasks_raven extends Tasks
 			}
 		}
 
+		if ($sort_by = array_get($config, 'sort_by')) {
+			if ($sort_by === 'key') {
+				ksort($metrics);
+			} elseif ($sort_by === 'value') {
+				arsort($metrics);
+			}
+
+			if (array_get($config, 'sort_dir') === 'desc') {
+				$metrics = array_reverse($metrics, true);
+			}
+		}
+
 		$config['metrics'] = $metrics;
 
 		return $config;
