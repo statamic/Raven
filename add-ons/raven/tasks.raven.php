@@ -106,6 +106,11 @@ class Tasks_raven extends Tasks
 		return $formset;
 	}
 
+
+	//
+	// Metrics
+	// 
+
 	private function buildMetrics($operations, $data)
 	{
 		if ( ! is_array($operations)) {
@@ -118,6 +123,8 @@ class Tasks_raven extends Tasks
 			
 			if (is_callable(array($this, $method), false)) {
 			    $metrics[] = $this->$method($config, $data);
+			} else {
+				throw new Exception("'".$config['type']."' is not a valid metric type.");
 			}
 		}
 
@@ -215,6 +222,44 @@ class Tasks_raven extends Tasks
 		}
 
 		$config['metrics'] = number_format($median, array_get($config, 'precision', 0));
+
+		return $config;
+	}
+
+	private function metricSum($config, $data)
+	{
+		$field = $config['field'];
+
+		$config['metrics'] = 0;
+		foreach ($data as $item) {
+			$config['metrics'] = $config['metrics'] + array_get($item['fields'], $field);
+		}
+
+		return $config;
+	}
+
+	private function metricMax($config, $data)
+	{
+		$field = $config['field'];
+
+		$numbers = array_map(function($item) use($field) {
+		  return array_get($item['fields'], $field);
+		}, $data);
+
+		$config['metrics'] = max($numbers);
+
+		return $config;
+	}
+
+	private function metricMin($config, $data)
+	{
+		$field = $config['field'];
+
+		$numbers = array_map(function($item) use($field) {
+		  return array_get($item['fields'], $field);
+		}, $data);
+
+		$config['metrics'] = min($numbers);
 
 		return $config;
 	}
