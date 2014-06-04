@@ -146,7 +146,7 @@ class API_raven extends API
 		    }
 	    }
 
-	    $config['metrics'] = count(array_unique($metrics));
+	    $config['metrics'] = number_format(count(array_unique($metrics)), 0);
 
 		return $config;
 	}
@@ -174,12 +174,14 @@ class API_raven extends API
 	{
 		$field = $config['field'];
 
-		$config['metrics'] = 0;
+		$count = 0;
 	    foreach ($data as $item) {
 	    	if (array_get($item['fields'], $field)) {
-	    		$config['metrics']++;
+	    		$count++;
 	    	}
 	    }
+
+	    $config['metrics'] = number_format($count, 0);
 
 		return $config;
 	}
@@ -223,7 +225,7 @@ class API_raven extends API
 	    	$median = (($low + $high)/2);
 	    }
 
-	    $config['metrics'] = $median;
+	    $config['metrics'] = number_format($median, array_get($config, 'precision', 0));
 
 		return $config;
 	}
