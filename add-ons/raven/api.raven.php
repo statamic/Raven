@@ -17,10 +17,11 @@ class API_raven extends API
 	{
 		$files   = $this->getFiles($formset_name);
 		$formset = $this->getFormset($formset_name);
+		$formsets = $this->getFormsets();
 		$fields  = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
 		$metrics = $this->buildMetrics(array_get($formset, 'control_panel:metrics'), $files);
 
-		return compact('files', 'fields', 'formset', 'metrics');
+		return compact('files', 'fields', 'formsets', 'formset', 'metrics');
 	}
 
 
@@ -36,24 +37,24 @@ class API_raven extends API
 			->in(BASE_PATH . '/'. $this->config['submission_save_path'] . $subfolder);
 
 		$files = array();
-        foreach ($matches as $file) {
-        	$file_data = Parse::yaml($file->getContents());
-        	
-        	$meta =  array(
+		foreach ($matches as $file) {
+			$file_data = Parse::yaml($file->getContents());
+			
+			$meta =  array(
 				'path' => $file->getRealpath(),
-                'filename' => $file->getFilename(),
-			    'folder' => $file->getRelativePath(),
-        		'extension' => $file->getExtension()
-        	);
+				'filename' => $file->getFilename(),
+				'folder' => $file->getRelativePath(),
+				'extension' => $file->getExtension()
+			);
 
-        	$data = array('meta' => $meta, 'fields' => $file_data);
+			$data = array('meta' => $meta, 'fields' => $file_data);
 
-        	if ($formset) {
-        		$files[] = $data;
-        	} else {
-	        	$files[$meta['folder']][] = $data;
-        	}
-        }
+			if ($formset) {
+				$files[] = $data;
+			} else {
+				$files[$meta['folder']][] = $data;
+			}
+		}
 		
 		return $files;
 	}
@@ -137,16 +138,16 @@ class API_raven extends API
 
 	private function metricUnique($config, $data)
 	{
-    	$field = $config['field'];
+		$field = $config['field'];
 
 		$metrics = array();
-	    foreach ($data as $item) {
-	    	if (array_get($item['fields'], $field)) {
+		foreach ($data as $item) {
+			if (array_get($item['fields'], $field)) {
 				$metrics[] = $item['fields'][$field];
-		    }
-	    }
+			}
+		}
 
-	    $config['metrics'] = number_format(count(array_unique($metrics)), 0);
+		$config['metrics'] = number_format(count(array_unique($metrics)), 0);
 
 		return $config;
 	}
@@ -156,16 +157,16 @@ class API_raven extends API
 		$field = $config['field'];
 
 		$metrics = array();
-	    foreach ($data as $item) {
-	    	$value = $item['fields'][$field];
-	        if (array_get($metrics, $value)) {
-	        	$metrics[$value] = $metrics[$value] +1;
-	        } else {
-	        	$metrics[$value] = 1;
-	        }
-	    }
+		foreach ($data as $item) {
+			$value = $item['fields'][$field];
+			if (array_get($metrics, $value)) {
+				$metrics[$value] = $metrics[$value] +1;
+			} else {
+				$metrics[$value] = 1;
+			}
+		}
 
-	    $config['metrics'] = $metrics;
+		$config['metrics'] = $metrics;
 
 		return $config;
 	}
@@ -175,13 +176,13 @@ class API_raven extends API
 		$field = $config['field'];
 
 		$count = 0;
-	    foreach ($data as $item) {
-	    	if (array_get($item['fields'], $field)) {
-	    		$count++;
-	    	}
-	    }
+		foreach ($data as $item) {
+			if (array_get($item['fields'], $field)) {
+				$count++;
+			}
+		}
 
-	    $config['metrics'] = number_format($count, 0);
+		$config['metrics'] = number_format($count, 0);
 
 		return $config;
 	}
@@ -192,11 +193,11 @@ class API_raven extends API
 
 		$count = count($data);
 		$total = 0;
-	    foreach ($data as $item) {
-	    	$total = $total + array_get($item['fields'], $field);
-	    }
+		foreach ($data as $item) {
+			$total = $total + array_get($item['fields'], $field);
+		}
 
-	    $config['metrics'] = number_format(($total/$count), array_get($config, 'precision', 2));
+		$config['metrics'] = number_format(($total/$count), array_get($config, 'precision', 2));
 
 		return $config;
 	}
@@ -208,24 +209,24 @@ class API_raven extends API
 		$count = count($data);
 
 		$numbers = array();
-	    foreach ($data as $item) {
-	    	$numbers[] = array_get($item['fields'], $field);
-	    }
+		foreach ($data as $item) {
+			$numbers[] = array_get($item['fields'], $field);
+		}
 
-	    sort($numbers);
-	    $middle_value = floor(($count-1)/2);
+		sort($numbers);
+		$middle_value = floor(($count-1)/2);
 
-	    if ($count % 2) {
-	    	// odd number
-	    	$median = $numbers[$middle_value];
-	    } else {
-	    	// even number
-	    	$low = $number[$middle_value];
-	    	$high = $numbers[$middle_value + 1];
-	    	$median = (($low + $high)/2);
-	    }
+		if ($count % 2) {
+			// odd number
+			$median = $numbers[$middle_value];
+		} else {
+			// even number
+			$low = $number[$middle_value];
+			$high = $numbers[$middle_value + 1];
+			$median = (($low + $high)/2);
+		}
 
-	    $config['metrics'] = number_format($median, array_get($config, 'precision', 0));
+		$config['metrics'] = number_format($median, array_get($config, 'precision', 0));
 
 		return $config;
 	}
