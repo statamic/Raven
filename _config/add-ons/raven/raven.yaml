@@ -26,3 +26,5 @@ email_handler:
 email_handler_key:
 
 master_killswitch: false
+
+datestamp_format: "m/d/Y"

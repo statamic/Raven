@@ -54,13 +54,16 @@ class Tasks_raven extends Tasks
 
 		$files = array();
 		foreach ($matches as $file) {
+
 			$file_data = Parse::yaml($file->getContents());
+			$file_data['datestamp'] = date($this->config['datestamp_format'], $file->getMTime());
 			
 			$meta =  array(
 				'path' => $file->getRealpath(),
 				'filename' => $file->getFilename(),
 				'folder' => $file->getRelativePath(),
-				'extension' => $file->getExtension()
+				'extension' => $file->getExtension(),
+				'datestamp' => $file->getMTime()
 			);
 
 			$data = array('meta' => $meta, 'fields' => $file_data);
@@ -70,6 +73,8 @@ class Tasks_raven extends Tasks
 			} else {
 				$files[$meta['folder']][] = $data;
 			}
+
+			$files = array_reverse($files);
 		}
 		
 		return $files;
