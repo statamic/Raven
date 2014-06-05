@@ -15,13 +15,29 @@ class Tasks_raven extends Tasks
 
 	public function getFormsetData($formset_name)
 	{
-		$files   = $this->getFiles($formset_name);
-		$formset = $this->getFormset($formset_name);
+		$files    = $this->getFiles($formset_name);
+		$formset  = $this->getFormset($formset_name);
 		$formsets = $this->getFormsets();
-		$fields  = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
-		$metrics = $this->buildMetrics(array_get($formset, 'control_panel:metrics'), $files);
+		$fields   = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
+		$metrics  = $this->buildMetrics(array_get($formset, 'control_panel:metrics'), $files);
 
 		return compact('files', 'fields', 'formsets', 'formset', 'metrics');
+	}
+
+	public function exportCSV($formset)
+	{
+		$files  = $this->getFiles($formset);
+		$fields = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
+
+		$out = fopen('php://output', 'w');
+
+		fputcsv($out, $fields);
+
+		foreach ($files as $file) {
+			fputcsv($out, $file['fields']);
+		}
+
+		fclose($out);
 	}
 
 

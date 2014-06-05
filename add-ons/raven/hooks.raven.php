@@ -27,7 +27,13 @@ class Hooks_raven extends Hooks {
 			$template_list = array("raven-overview");
 			Statamic_View::set_templates(array_reverse($template_list));
 
-			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getOverviewData());
+			$data = $this->tasks->getOverviewData();
+
+			if (count($data['formsets']) === 1) {
+				$app->redirect($app->urlFor('raven') . '/' . key($data['formsets']));
+			}
+
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $data);
 
 		})->name('raven');
 
@@ -40,6 +46,17 @@ class Hooks_raven extends Hooks {
 
 			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetData($formset));
 
+		});
+
+		$app->get('/raven/:formset/export', function($formset) use ($app) {
+			authenticateForRole('admin');
+			doStatamicVersionCheck($app);
+
+			$res = $app->response();
+			$res['Content-Type'] = 'text/csv';
+			$res['Content-Disposition'] = 'attachment;filename=' . $formset . '-export.csv';
+
+			$this->tasks->exportCSV($formset);
 		});
 	}
 
