@@ -6,7 +6,7 @@ class Tasks_raven extends Tasks
 {
 	public function getOverviewData($formset=false)
 	{
-		$files = $this->getFiles($formset);
+		$files    = $this->getAllFiles();
 		$formsets = $this->getFormsets();
 
 		return compact('files', 'formsets');
@@ -15,7 +15,7 @@ class Tasks_raven extends Tasks
 
 	public function getFormsetData($formset_name)
 	{
-		$files    = $this->getFiles($formset_name);
+		$files    = $this->getFormsetFiles($formset_name);
 		$formset  = $this->getFormset($formset_name);
 		$formsets = $this->getFormsets();
 		$fields   = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
@@ -41,16 +41,30 @@ class Tasks_raven extends Tasks
 	}
 
 
-	public function getFiles($formset=false)
+	public function getAllFiles($formset=false)
 	{
+		$formsets = $this->getFormsets();
+		
+		$files = array();
+		foreach ($formsets as $name => $config) {
+			$files[$name] = $this->getFormsetFiles($name);
+		}
+		
+		return $files;
+	}
+
+	public function getFormsetFiles($formset)
+	{
+		$config = $this->getFormset($formset);
+		
 		$finder = new Finder();
-		$subfolder = ($formset) ? '/' . $formset : '';
 
 		$matches = $finder
 			->name("*.yaml")
+			->depth(0)
 			->files()
 			->followLinks()
-			->in(BASE_PATH . '/'. $this->config['submission_save_path'] . $subfolder);
+			->in(Path::assemble(BASE_PATH, array_get($config, 'submission_save_path')));
 
 		$files = array();
 		foreach ($matches as $file) {
@@ -59,25 +73,18 @@ class Tasks_raven extends Tasks
 			$file_data['datestamp'] = date($this->config['datestamp_format'], $file->getMTime());
 			
 			$meta =  array(
-				'path' => $file->getRealpath(),
-				'filename' => $file->getFilename(),
-				'folder' => $file->getRelativePath(),
+				'path'      => $file->getRealpath(),
+				'filename'  => $file->getFilename(),
+				'formset'   => $formset,
 				'extension' => $file->getExtension(),
 				'datestamp' => $file->getMTime()
 			);
 
 			$data = array('meta' => $meta, 'fields' => $file_data);
-
-			if ($formset) {
-				$files[] = $data;
-			} else {
-				$files[$meta['folder']][] = $data;
-			}
-
-			$files = array_reverse($files);
+			$files[] = $data;
 		}
 		
-		return $files;
+		return array_reverse($files);
 	}
 
 
@@ -107,7 +114,7 @@ class Tasks_raven extends Tasks
 		$formsets = array();
 		foreach ($matches as $file) {
 			$formset = substr($file->getBasename(), 0, -5);
-			$config = $this->config + Parse::yaml($file->getRealPath());
+			$config = Parse::yaml($file->getRealPath()) + $this->config;
 			if ( ! array_get($config, 'control_panel:exclude')) {
 				$formsets[$formset] = $config;
 			}
