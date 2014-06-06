@@ -54,3 +54,21 @@ email:
   automagic: true
   # html_template: html_email
   # text_template: text_email
+
+datestamp_format: "m/d/Y"
+
+control_panel:
+  fields:
+    - name
+    - website
+    - email
+    - years
+  metrics:
+    -
+      type: average
+      field: years
+      label: Average Years Stranded
+    - 
+      type: sum
+      field: years
+      label: Total Years Stranded
