@@ -26,7 +26,7 @@ class Tasks_raven extends Tasks
 
 	public function exportCSV($formset)
 	{
-		$files  = $this->getFiles($formset);
+		$files  = $this->getFormsetFiles($formset);
 		$fields = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
 
 		$out = fopen('php://output', 'w');
