@@ -103,24 +103,28 @@ class Tasks_raven extends Tasks
 
 	private function getFormsets()
 	{
-		$finder = new Finder();
+		try {
+			$finder = new Finder();
 
-		$matches = $finder
-			->name("*.yaml")
-			->files()
-			->followLinks()
-			->in(BASE_PATH . '/_config*/formsets');
+			$matches = $finder
+				->name("*.yaml")
+				->files()
+				->followLinks()
+				->in(BASE_PATH . '/_config*/formsets');
 
-		$formsets = array();
-		foreach ($matches as $file) {
-			$formset = substr($file->getBasename(), 0, -5);
-			$config = Parse::yaml($file->getRealPath()) + $this->config;
-			if ( ! array_get($config, 'control_panel:exclude')) {
-				$formsets[$formset] = $config;
+			$formsets = array();
+			foreach ($matches as $file) {
+				$formset = substr($file->getBasename(), 0, -5);
+				$config = Parse::yaml($file->getRealPath()) + $this->config;
+				if ( ! array_get($config, 'control_panel:exclude')) {
+					$formsets[$formset] = $config;
+				}
 			}
-		}
 
-		return $formsets;
+			return $formsets;
+		} catch(Exception $e) {
+			return array();
+		}
 	}
 
 
