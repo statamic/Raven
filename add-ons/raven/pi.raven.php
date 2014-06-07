@@ -54,6 +54,8 @@ class Plugin_raven extends Plugin {
 		|
 		*/
 
+		$form_id = $this->fetchParam('id', true);
+
 		$attributes_string = '';
 
 		if ($attr = $this->fetchParam('attr', false)) {
@@ -64,7 +66,7 @@ class Plugin_raven extends Plugin {
 		}
 
 		$html  = "<form method='post' {$attributes_string}>\n";
-		$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
+		$html .= "<input type='hidden' name='hidden[raven]' value='{$form_id}' />\n";
 		$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
 		$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
 		$html .= "<input type='hidden' name='hidden[error_return]' value='{$error_return}' />\n";
@@ -108,6 +110,10 @@ class Plugin_raven extends Plugin {
 	**/
 	public function success()
 	{
+		if ( ! $this->isActiveForm()) {
+			return false;
+		}
+
 		return $this->flash->get('success');  
 	}
 
@@ -120,6 +126,10 @@ class Plugin_raven extends Plugin {
 	**/
 	public function errors()
 	{
+		if ( ! $this->isActiveForm()) {
+			return false;
+		}
+
 		if ($errors = $this->flash->get('errors')) {
 			return Parse::template($this->content, $errors);
 		}
@@ -129,6 +139,10 @@ class Plugin_raven extends Plugin {
 
 	public function has_errors()
 	{
+		if ( ! $this->isActiveForm()) {
+			return false;
+		}
+
 		if ($errors = $this->flash->get('errors')) {
 			if (is_array(array_get($errors, 'invalid')) || is_array(array_get($errors, 'missing'))) {
 				return true;
@@ -136,5 +150,19 @@ class Plugin_raven extends Plugin {
 		}
 
 		return false;
+	}
+
+
+	/**
+	* Returns true or false based on whether the form was the one submitted
+	*
+	* If using multiple forms on one page, `raven` tags should have a
+	* common `id` parameter between each set.
+	*
+	* @return bool
+	**/
+	private function isActiveForm()
+	{
+		return $this->flash->get('form_id') == $this->fetchParam('id', 1);
 	}
 }
