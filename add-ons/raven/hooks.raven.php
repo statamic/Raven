@@ -58,6 +58,27 @@ class Hooks_raven extends Hooks {
 
 			$this->tasks->exportCSV($formset);
 		});
+
+		$app->map('/raven/:formset/delete', function($formset) use ($app) {
+			authenticateForRole('admin');
+			doStatamicVersionCheck($app);
+		
+			$files = (array) Request::fetch('files');
+			$count = count($files);
+		
+			foreach ($files as $file) {
+				File::delete($file);
+			}
+
+			if ($count > 1) {
+				$app->flash('success', Localization::fetch('files_deleted'));
+			} else {
+				$app->flash('success', Localization::fetch('file_deleted'));
+			}
+
+			$app->redirect($app->urlFor('raven') . '/' . $formset);
+
+		})->via('GET', 'POST');
 	}
 
 	/**
