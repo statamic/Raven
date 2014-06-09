@@ -48,6 +48,17 @@ class Hooks_raven extends Hooks {
 
 		});
 
+		$app->get('/raven/:formset/spam', function($formset) use ($app) {
+			authenticateForRole('admin');
+			doStatamicVersionCheck($app);
+
+			$template_list = array("raven-spam");
+			Statamic_View::set_templates(array_reverse($template_list));
+
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetSpamData($formset));
+
+		});
+
 		$app->get('/raven/:formset/export', function($formset) use ($app) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
@@ -57,6 +68,32 @@ class Hooks_raven extends Hooks {
 			$res['Content-Disposition'] = 'attachment;filename=' . $formset . '-export.csv';
 
 			$this->tasks->exportCSV($formset);
+		});
+
+		$app->post('/raven/:formset/batch', function($formset) use ($app) {
+			authenticateForRole('admin');
+			doStatamicVersionCheck($app);
+		
+			$files = (array) Request::fetch('files');
+			$action = Request::fetch('action');
+
+			$count = count($files);
+
+			foreach ($files as $file) {
+				switch ($action) {
+					case "delete":
+						File::delete($file);
+					case "spam":
+						$this->tasks->markAsSpam($file);
+					case "ham":
+						$this->tasks->markAsHam($file);
+				}
+			}
+
+			$app->flash('success', Localization::fetch('batch_' . $action));
+
+			$app->redirect($app->urlFor('raven') . '/' . $formset);
+
 		});
 
 		$app->map('/raven/:formset/delete', function($formset) use ($app) {
@@ -125,7 +162,8 @@ class Hooks_raven extends Hooks {
 		| to allow per-form overrides.
 		|
 		*/
-		$formset = array_get($hidden, 'formset', null) . '.yaml';
+		$formset_name = array_get($hidden, 'formset');
+		$formset = $formset_name . '.yaml';
 
 		if (File::exists('_config/add-ons/raven/formsets/' . $formset)) {
 			$formset = Yaml::parse('_config/add-ons/raven/formsets/' . $formset);
@@ -251,37 +289,57 @@ class Hooks_raven extends Hooks {
 
 		if ($success) {
 
-		// Shall we save?
-		if (array_get($config, 'submission_save_to_file', false) === true) {
-			$file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
-			$file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
+			// Akismet?
+			$is_spam = false;
 
-			$this->save($submission, $config, $config['submission_save_path'], $file_prefix, $file_suffix);
-		}
+			if ($akismet = array_get($config, 'akismet')) {
+				$is_spam = $this->tasks->akismetCheck(array(
+					'permalink'            => URL::makeFull(URL::getCurrent()),
+					'comment_type'         => $formset_name,
+					'comment_author'       => array_get($submission, array_get($akismet, 'author')),
+					'comment_author_email' => array_get($submission, array_get($akismet, 'email')),
+					'comment_author_url'   => array_get($submission, array_get($akismet, 'url')),
+					'comment_content'      => array_get($submission, array_get($akismet, 'content'))
+				));
+			// dd($is_spam);
+			}
 
-		// Shall we send?
-		if (array_get($config, 'send_notification_email', false) === true) {
-			$this->send($submission, $config);
-		}
+
+			// Shall we save?
+			if (array_get($config, 'submission_save_to_file', false) === true) {
+				$file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
+				$file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
+
+				$file_prefix = ($is_spam) ? '_' . $file_prefix : $file_prefix;
+				// rd($file_prefix);
+
+				$this->save($submission, $config, $config['submission_save_path'], $is_spam);
+			}
+
+			// Shall we send?
+			if (array_get($config, 'send_notification_email', false) === true) {
+				$this->send($submission, $config);
+			}
 
 
-		/*
-		|--------------------------------------------------------------------------
-		| Hook: On Success
-		|--------------------------------------------------------------------------
-		|
-		| Allow events after the form as been processed. Has access to the
-		| submission and config.
-		|
-		*/
 
-		Hook::run('raven', 'on_success', null, null, array(
-			'submission' => $submission,
-			'config' => $config)
-		);
+			/*
+			|--------------------------------------------------------------------------
+			| Hook: On Success
+			|--------------------------------------------------------------------------
+			|
+			| Allow events after the form as been processed. Has access to the
+			| submission and config.
+			|
+			*/
 
-		$this->flash->set('success', true);
-		URL::redirect(URL::format($return));
+			Hook::run('raven', 'on_success', null, null, array(
+				'submission' => $submission,
+				'config' => $config)
+			);
+
+			$this->flash->set('success', true);
+			URL::redirect(URL::format($return));
 
 		} else {
 			$this->flash->set('success', false);
@@ -345,7 +403,7 @@ class Hooks_raven extends Hooks {
 	* @param string  $suffix  Filename suffix to use for submission file
 	* @return void
 	*/
-	private function save($data, $config, $location, $prefix = '', $suffix = '')
+	private function save($data, $config, $location, $is_spam = false)
 	{
 		if (array_get($this->config, 'master_killswitch')) return;
 
@@ -357,7 +415,6 @@ class Hooks_raven extends Hooks {
 		if ( ! File::exists($location)) {
 			Folder::make($location);
 		}
-
 
 		if ($format = array_get($config, 'filename_format')) {
 
@@ -379,8 +436,12 @@ class Hooks_raven extends Hooks {
 			$filename = Parse::template($format, $available_variables);
 
 		} else {
-			$prefix = $prefix != '' ? $prefix . '-' : $prefix;
-			$filename = $prefix . date('Y-m-d-Gi-s', time()) . $suffix;
+			$filename = date('Y-m-d-Gi-s', time());
+		}
+
+		if ($is_spam) {
+			$location = $location . 'spam/';
+			Folder::make($location);
 		}
 
 		// Put it in the right folder

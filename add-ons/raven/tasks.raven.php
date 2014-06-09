@@ -16,12 +16,23 @@ class Tasks_raven extends Tasks
 	public function getFormsetData($formset_name)
 	{
 		$files    = $this->getFormsetFiles($formset_name);
+		$spam     = $this->getFormsetSpam($formset_name);
 		$formset  = $this->getFormset($formset_name);
 		$formsets = $this->getFormsets();
 		$fields   = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($files)));
 		$metrics  = $this->buildMetrics(array_get($formset, 'control_panel:metrics'), $files);
 
-		return compact('files', 'fields', 'formsets', 'formset', 'metrics');
+		return compact('files', 'fields', 'formsets', 'formset', 'metrics', 'spam');
+	}
+
+	public function getFormsetSpamData($formset_name)
+	{
+		$spam    = $this->getFormsetSpam($formset_name);
+		$formset  = $this->getFormset($formset_name);
+		$formsets = $this->getFormsets();
+		$fields   = Helper::prettifyZeroIndexes(array_get($formset, 'control_panel:fields', $this->getFieldNames($spam)));
+
+		return compact('spam', 'fields', 'formsets', 'formset');
 	}
 
 	public function exportCSV($formset)
@@ -56,15 +67,31 @@ class Tasks_raven extends Tasks
 	public function getFormsetFiles($formset)
 	{
 		$config = $this->getFormset($formset);
+		$path = Path::assemble(BASE_PATH, array_get($config, 'submission_save_path'));
+		
+		return $this->getFiles($formset, $path);
+	}
+
+	public function getFormsetSpam($formset)
+	{
+		$config = $this->getFormset($formset);
+		$path = Path::assemble(BASE_PATH, array_get($config, 'submission_save_path'), 'spam');
+		
+		return $this->getFiles($formset, $path);	
+	}
+
+	public function getFiles($formset, $path, $extension = "yaml")
+	{
+		if ( ! Folder::exists($path)) return array();
 		
 		$finder = new Finder();
 
 		$matches = $finder
-			->name("*.yaml")
+			->name("*." . $extension)
 			->depth(0)
 			->files()
 			->followLinks()
-			->in(Path::assemble(BASE_PATH, array_get($config, 'submission_save_path')));
+			->in($path);
 
 		$files = array();
 		foreach ($matches as $file) {
@@ -306,5 +333,50 @@ class Tasks_raven extends Tasks
 		$config['metrics'] = min($numbers);
 
 		return $config;
+	}
+
+	/**
+	* Run an Akismet check for spam
+	* @param array $comment Message data. Required keys:
+	*      permalink - the permanent location of the entry the comment was submitted to
+	*      comment_type - may be blank, comment, trackback, pingback, or a made up value like "registration"
+	*      comment_author - name submitted with the comment
+	*      comment_author_email - email address submitted with the comment
+	*      comment_author_url - URL submitted with comment
+	*      comment_content - the content that was submitted
+	* @return bool   true if spam
+	*/
+	public function akismetCheck($comment)
+	{
+		$loader = new SplClassLoader('Rzeka', __DIR__ . '/vendor/');
+	    $loader->register();
+
+		$connector = new Rzeka\Service\Akismet\Connector\Curl();
+		$akismet   = new Rzeka\Service\Akismet($connector);
+
+		$api_key  = $this->config['akismet_api_key'];
+		$site_url = Config::get('site_url');
+
+		if ( ! $akismet->keyCheck($api_key, $site_url)) {
+			dd($akismet->getError());
+		};
+
+		return $akismet->check($comment);
+	}
+
+	public function markAsSpam($file)
+	{
+		$info = new SplFileInfo($file);
+		$filename = $info->getFilename();
+
+		$directory = str_replace($filename, '', $file) . 'spam/';
+		Folder::make($directory);
+	
+		File::move($file, Path::assemble($directory, $filename));
+	}
+
+	public function markAsHam($file)
+	{
+		File::move($file, str_replace('spam/', '', $file));
 	}
 }
