@@ -358,7 +358,8 @@ class Tasks_raven extends Tasks
 		$site_url = Config::get('site_url');
 
 		if ( ! $akismet->keyCheck($api_key, $site_url)) {
-			dd($akismet->getError());
+			Log::error('Invalid Akismet API key', 'raven');
+			return false;
 		};
 
 		return $akismet->check($comment);
@@ -371,7 +372,7 @@ class Tasks_raven extends Tasks
 
 		$directory = str_replace($filename, '', $file) . 'spam/';
 		Folder::make($directory);
-	
+
 		File::move($file, Path::assemble($directory, $filename));
 	}
 

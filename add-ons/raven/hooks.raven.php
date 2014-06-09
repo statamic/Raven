@@ -83,10 +83,13 @@ class Hooks_raven extends Hooks {
 				switch ($action) {
 					case "delete":
 						File::delete($file);
+						break;
 					case "spam":
 						$this->tasks->markAsSpam($file);
+						break;
 					case "ham":
 						$this->tasks->markAsHam($file);
+						break;
 				}
 			}
 
@@ -317,7 +320,7 @@ class Hooks_raven extends Hooks {
 			}
 
 			// Shall we send?
-			if ( ! is_spam && array_get($config, 'send_notification_email', false) === true) {
+			if ( ! $is_spam && array_get($config, 'send_notification_email', false) === true) {
 				$this->send($submission, $config);
 			}
 
