@@ -317,7 +317,7 @@ class Hooks_raven extends Hooks {
 			}
 
 			// Shall we send?
-			if (array_get($config, 'send_notification_email', false) === true) {
+			if ( ! is_spam && array_get($config, 'send_notification_email', false) === true) {
 				$this->send($submission, $config);
 			}
 
