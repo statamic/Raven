@@ -25,7 +25,7 @@ class Hooks_raven extends Hooks {
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-overview");
-			Statamic_View::set_templates(array_reverse($template_list));
+			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
 			$data = $this->tasks->getOverviewData();
 
@@ -42,7 +42,7 @@ class Hooks_raven extends Hooks {
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-detail");
-			Statamic_View::set_templates(array_reverse($template_list));
+			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
 			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetData($formset));
 
@@ -53,7 +53,7 @@ class Hooks_raven extends Hooks {
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-spam");
-			Statamic_View::set_templates(array_reverse($template_list));
+			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
 			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetSpamData($formset));
 
