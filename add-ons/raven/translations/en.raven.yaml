@@ -1,0 +1,18 @@
+translations:
+  raven: Raven
+  raven_forms: Raven Forms
+  nav_title_raven: Forms
+  nav_icon_raven: form
+  export_csv: Export to CSV
+  form: Form
+  submissions: Submissions
+  delete_files: Delete Files
+  spam: Spam
+  ham: Ham
+  all_submissions: All Submissions
+  mark_as_spam: Mark as Spam
+  mark_as_ham: Mark as Ham
+  batch_delete: Files deleted
+  batch_spam: Moved to spam
+  batch_ham: Moved to ham
+  confirm_action: Yes I'm Sure
