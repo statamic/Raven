@@ -29,9 +29,9 @@ class Plugin_raven extends Plugin {
 		|
 		*/
 
-		$formset      = $this->fetchParam('formset', false);
-		$return       = $this->fetchParam('return', URL::getCurrent());
-		$error_return = $this->fetchParam('error_return', URL::getCurrent());
+		$formset   = $this->fetchParam('formset', false);
+		$return    = $this->fetchParam('return', URL::getCurrent());
+		$multipart = ($this->fetchParam('files', false)) ? "enctype='multipart/form-data'" : '';
 
 		// Sanitize data before returning it for display
 		$old_values = array_map('htmlspecialchars', $this->flash->get('old_values', array()));
@@ -65,8 +65,8 @@ class Plugin_raven extends Plugin {
 			}
 		}
 
-		$html  = "<form method='post' {$attributes_string}>\n";
-		$html .= "<input type='hidden' name='hidden[raven]' value='{$form_id}' />\n";
+		$html  = "<form method='post' {$multipart} {$attributes_string}>\n";
+		$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
 		$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
 		$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
 		$html .= "<input type='hidden' name='hidden[error_return]' value='{$error_return}' />\n";
@@ -114,7 +114,7 @@ class Plugin_raven extends Plugin {
 			return false;
 		}
 
-		return $this->flash->get('success');  
+		return $this->flash->get('success');
 	}
 
 	/**

@@ -230,9 +230,7 @@ class Hooks_raven extends Hooks {
 
 			if (count($missing) > 0) {
 				foreach ($missing as $key => $field) {
-					$errors['missing'][] = array(
-						'field' => $field
-						);
+					$errors['missing'][] = array('field' => $field);
 				}
 				$success = false;
 			}
@@ -259,9 +257,28 @@ class Hooks_raven extends Hooks {
 				$errors['invalid'][] = array(
 					'field' => $field,
 					'message' => isset($messages[$field]) ? $messages[$field] : null
-					);
+				);
 			}
 			$success = false;
+		}
+
+		/*
+		|--------------------------------------------------------------------------
+		| Upload Files
+		|--------------------------------------------------------------------------
+		|
+		| Upload any files to their specified destination.
+		|
+		*/
+
+		if (count($_FILES) > 0) {
+			$files = array_intersect_key($_FILES, $allowed_fields);
+
+			$upload_destination = array_get($config, 'upload_destination');
+
+			foreach ($files as $name => $file) {
+				$submission[$name] = File::upload($file, $upload_destination);
+			}
 		}
 
 		/*
