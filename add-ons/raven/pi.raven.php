@@ -67,7 +67,7 @@ class Plugin_raven extends Plugin {
 		}
 
 		$html  = "<form method='post' {$multipart} {$attributes_string}>\n";
-		$html .= "<input type='hidden' name='hidden[raven]' value='true' />\n";
+		$html .= "<input type='hidden' name='hidden[raven]' value='{$form_id}' />\n";
 		$html .= "<input type='hidden' name='hidden[formset]' value='{$formset}' />\n";
 		$html .= "<input type='hidden' name='hidden[return]' value='{$return}' />\n";
 		$html .= "<input type='hidden' name='hidden[error_return]' value='{$error_return}' />\n";

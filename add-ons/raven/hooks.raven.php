@@ -298,6 +298,18 @@ class Hooks_raven extends Hooks {
 		);
 
 		/*
+	  |--------------------------------------------------------------------------
+	  | Form Identifier
+	  |--------------------------------------------------------------------------
+	  |
+	  | In the event of multiple forms on a page, we'll be able to determine
+	  | which one was the one that had been triggered.
+	  |
+	  */
+		
+		$this->flash->set('form_id', $hidden['raven']);
+
+		/*
 		|--------------------------------------------------------------------------
 		| Finalize & determine action
 		|--------------------------------------------------------------------------
