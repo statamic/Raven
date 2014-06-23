@@ -292,20 +292,17 @@ class Hooks_raven extends Hooks {
 		|
 		*/
 
-		$success = Hook::run('raven', 'pre_process', 'replace', $success, array(
-			'submission' => $submission,
-			'config' => $config)
-		);
+		$success = Hook::run('raven', 'pre_process', 'replace', $success, compact('submission', 'config', 'success'));
 
 		/*
-	  |--------------------------------------------------------------------------
-	  | Form Identifier
-	  |--------------------------------------------------------------------------
-	  |
-	  | In the event of multiple forms on a page, we'll be able to determine
-	  | which one was the one that had been triggered.
-	  |
-	  */
+		|--------------------------------------------------------------------------
+		| Form Identifier
+		|--------------------------------------------------------------------------
+		|
+		| In the event of multiple forms on a page, we'll be able to determine
+		| which one was the one that had been triggered.
+		|
+		*/
 		
 		$this->flash->set('form_id', $hidden['raven']);
 
