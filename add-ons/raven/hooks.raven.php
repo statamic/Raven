@@ -325,7 +325,7 @@ class Hooks_raven extends Hooks {
 			// Akismet?
 			$is_spam = false;
 
-			if ($akismet = array_get($config, 'akismet')) {
+			if ($akismet = array_get($config, 'akismet') && array_get($config, 'akismet_api_key')) {
 				$is_spam = $this->tasks->akismetCheck(array(
 					'permalink'            => URL::makeFull(URL::getCurrent()),
 					'comment_type'         => $formset_name,
@@ -334,9 +334,7 @@ class Hooks_raven extends Hooks {
 					'comment_author_url'   => array_get($submission, array_get($akismet, 'url')),
 					'comment_content'      => array_get($submission, array_get($akismet, 'content'))
 				));
-			// dd($is_spam);
 			}
-
 
 			// Shall we save?
 			if (array_get($config, 'submission_save_to_file', false) === true) {
@@ -344,7 +342,6 @@ class Hooks_raven extends Hooks {
 				$file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
 
 				$file_prefix = ($is_spam) ? '_' . $file_prefix : $file_prefix;
-				// rd($file_prefix);
 
 				$this->save($submission, $config, $config['submission_save_path'], $is_spam);
 			}
@@ -443,7 +440,9 @@ class Hooks_raven extends Hooks {
 		$EXT = array_get($config, 'submission_save_extension', 'yaml');
 
 		// Clean up whitespace
-		$data = array_map('trim', $data);
+		array_walk_recursive($data, function(&$value, $key) {
+			$value = trim($value);
+		});
 
 		if ( ! File::exists($location)) {
 			Folder::make($location);
@@ -489,7 +488,6 @@ class Hooks_raven extends Hooks {
 				}
 			}
 		}
-
 		$filename .= '.' . $EXT;
 
 		if ($EXT === 'json') {
