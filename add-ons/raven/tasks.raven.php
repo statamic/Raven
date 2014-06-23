@@ -67,17 +67,19 @@ class Tasks_raven extends Tasks
 	public function getFormsetFiles($formset)
 	{
 		$config = $this->getFormset($formset);
+		$extension = array_get($config, 'submission_save_extension', 'yaml');
 		$path = Path::assemble(BASE_PATH, array_get($config, 'submission_save_path'));
 		
-		return $this->getFiles($formset, $path);
+		return $this->getFiles($formset, $path, $extension);
 	}
 
 	public function getFormsetSpam($formset)
 	{
 		$config = $this->getFormset($formset);
+		$extension = array_get($config, 'submission_save_extension', 'yaml');
 		$path = Path::assemble(BASE_PATH, array_get($config, 'submission_save_path'), 'spam');
 		
-		return $this->getFiles($formset, $path);	
+		return $this->getFiles($formset, $path, $extension);
 	}
 
 	public function getFiles($formset, $path, $extension = "yaml")
