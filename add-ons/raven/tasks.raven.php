@@ -174,7 +174,7 @@ class Tasks_raven extends Tasks
 
 	private function buildMetrics($operations, $data)
 	{
-		if ( ! is_array($operations)) {
+		if ( ! is_array($operations) || count($data) <= 0) {
 			return false;
 		}
 
