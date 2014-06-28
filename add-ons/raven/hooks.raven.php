@@ -19,15 +19,16 @@ class Hooks_raven extends Hooks {
 	public function control_panel__add_routes()
 	{
 		$app = \Slim\Slim::getInstance();
+		$tasks = $this->tasks;
 
-		$app->get('/raven', function() use ($app) {
+		$app->get('/raven', function() use ($app, $tasks) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-overview");
 			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
-			$data = $this->tasks->getOverviewData();
+			$data = $tasks->getOverviewData();
 
 			if (count($data['formsets']) === 1) {
 				$app->redirect($app->urlFor('raven') . '/' . key($data['formsets']));
@@ -37,29 +38,29 @@ class Hooks_raven extends Hooks {
 
 		})->name('raven');
 
-		$app->get('/raven/:formset', function($formset) use ($app) {
+		$app->get('/raven/:formset', function($formset) use ($app, $tasks) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-detail");
 			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
-			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetData($formset));
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $tasks->getFormsetData($formset));
 
 		});
 
-		$app->get('/raven/:formset/spam', function($formset) use ($app) {
+		$app->get('/raven/:formset/spam', function($formset) use ($app, $tasks) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
 
 			$template_list = array("raven-spam");
 			Statamic_View::set_templates(array_reverse($template_list), __DIR__ . '/templates');
 
-			$app->render(null, array('route' => 'raven', 'app' => $app) + $this->tasks->getFormsetSpamData($formset));
+			$app->render(null, array('route' => 'raven', 'app' => $app) + $tasks->getFormsetSpamData($formset));
 
 		});
 
-		$app->get('/raven/:formset/export', function($formset) use ($app) {
+		$app->get('/raven/:formset/export', function($formset) use ($app, $tasks) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
 
@@ -67,10 +68,10 @@ class Hooks_raven extends Hooks {
 			$res['Content-Type'] = 'text/csv';
 			$res['Content-Disposition'] = 'attachment;filename=' . $formset . '-export.csv';
 
-			$this->tasks->exportCSV($formset);
+			$tasks->exportCSV($formset);
 		});
 
-		$app->post('/raven/:formset/batch', function($formset) use ($app) {
+		$app->post('/raven/:formset/batch', function($formset) use ($app, $tasks) {
 			authenticateForRole('admin');
 			doStatamicVersionCheck($app);
 		
@@ -85,10 +86,10 @@ class Hooks_raven extends Hooks {
 						File::delete($file);
 						break;
 					case "spam":
-						$this->tasks->markAsSpam($file);
+						$tasks->markAsSpam($file);
 						break;
 					case "ham":
-						$this->tasks->markAsHam($file);
+						$tasks->markAsHam($file);
 						break;
 				}
 			}
