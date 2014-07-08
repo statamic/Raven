@@ -214,11 +214,14 @@ class Tasks_raven extends Tasks
 
 		$metrics = array();
 		foreach ($data as $item) {
-			$value = $item['fields'][$field];
-			if (array_get($metrics, $value)) {
-				$metrics[$value] = $metrics[$value] +1;
-			} else {
-				$metrics[$value] = 1;
+			$values = Helper::ensureArray($item['fields'][$field]);
+
+			foreach ($values as $value) {
+				if (array_get($metrics, $value)) {
+					$metrics[$value] = $metrics[$value] +1;
+				} else {
+					$metrics[$value] = 1;
+				}
 			}
 		}
 

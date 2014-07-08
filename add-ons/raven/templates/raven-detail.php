@@ -77,7 +77,14 @@
                 <input type="checkbox" name="files[]" value="<?php echo array_get($file, 'meta:path') ?>" data-bind="checked: selectedFiles" >
               </td>
               <?php foreach ($fields as $field => $name): ?>
-                <td><?php echo array_get($file, 'fields:'.$field) ?></td>
+                <td>
+                  <?php $val = array_get($file, 'fields:'.$field); ?>
+                  <?php if (is_array($val)): ?>
+                    <?php echo implode($val, ', '); ?>
+                  <?php else: ?>
+                    <?php echo $val ?>
+                  <?php endif ?>
+                </td>
               <?php endforeach ?>
             </tr>
           <?php endforeach ?>
