@@ -99,7 +99,7 @@ class Tasks_raven extends Tasks
 		foreach ($matches as $file) {
 
 			$file_data = Parse::yaml($file->getContents());
-			$file_data['datestamp'] = date($this->config['datestamp_format'], $file->getMTime());
+			$file_data['datestamp'] = date(array_get($this->config, 'datestamp_format', "m/d/Y"), $file->getMTime());
 			
 			$meta =  array(
 				'path'      => $file->getRealpath(),
