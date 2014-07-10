@@ -536,9 +536,10 @@ class Hooks_raven extends Hooks {
 			|
 			|
 			*/
+			$globals = Statamic::loadAllConfigs();
 
 			foreach ($attributes as $key => $value) {
-				$attributes[$key] = Parse::template($value, $submission);
+				$attributes[$key] = Parse::template($value, $submission, array('statamic_view', 'callback'), $globals);
 			}
 
 			$attributes['email_handler']     = array_get($config, 'email_handler', false);
