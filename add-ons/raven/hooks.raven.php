@@ -454,7 +454,7 @@ class Hooks_raven extends Hooks {
 				'year' => date('Y', $now),
 				'month' => date('m', $now),
 				'day' => date('d', $now),
-				'hour' => date('G', $now),
+				'hour' => date('H', $now),
 				'minute' => date('i', $now),
 				'minutes' => date('i', $now),
 				'second' => date('s', $now),
