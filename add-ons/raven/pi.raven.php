@@ -59,7 +59,7 @@ class Plugin_raven extends Plugin {
 
 		$attributes_string = '';
 
-		if ($attr = $this->fetchParam('attr', false)) {
+		if ($attr = $this->fetchParam('attr', false, null, false, false)) {
 			$attributes_array = Helper::explodeOptions($attr, true);
 			foreach ($attributes_array as $key => $value) {
 				$attributes_string .= " {$key}='{$value}'";
