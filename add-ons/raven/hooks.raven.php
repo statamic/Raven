@@ -322,8 +322,9 @@ class Hooks_raven extends Hooks {
 
 			// Akismet?
 			$is_spam = false;
-
-			if ($akismet = array_get($config, 'akismet') && array_get($config, 'akismet_api_key')) {
+			
+			$akismet = array_get($config, 'akismet');
+			if ($akismet && array_get($config, 'akismet_api_key')) {
 				$is_spam = $this->tasks->akismetCheck(array(
 					'permalink'            => URL::makeFull(URL::getCurrent()),
 					'comment_type'         => $formset_name,
