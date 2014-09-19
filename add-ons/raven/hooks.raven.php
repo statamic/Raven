@@ -318,12 +318,14 @@ class Hooks_raven extends Hooks {
 		|
 		*/
 
+
 		if ($success) {
 
 			// Akismet?
 			$is_spam = false;
+			$akismet = array_get($config, 'akismet');
 
-			if ($akismet = array_get($config, 'akismet') && array_get($config, 'akismet_api_key')) {
+			if ($akismet && array_get($config, 'akismet_api_key')) {
 				$is_spam = $this->tasks->akismetCheck(array(
 					'permalink'            => URL::makeFull(URL::getCurrent()),
 					'comment_type'         => $formset_name,
@@ -346,10 +348,8 @@ class Hooks_raven extends Hooks {
 
 			// Shall we send?
 			if ( ! $is_spam && array_get($config, 'send_notification_email', false) === true) {
-				$this->send($submission, $config);
+				$this->sendEmails($submission, $config);
 			}
-
-
 
 			/*
 			|--------------------------------------------------------------------------
@@ -365,7 +365,6 @@ class Hooks_raven extends Hooks {
 				'submission' => $submission,
 				'config' => $config)
 			);
-
 			$this->flash->set('success', true);
 			URL::redirect(URL::format($return));
 
@@ -497,56 +496,76 @@ class Hooks_raven extends Hooks {
 	}
 
 	/**
-	* Send a notification/response email
+	* Initiate sending of email(s)
 	*
 	* @param array  $submission  Array of submitted values
 	* @param array  $config  Array of config values
 	* @return void
 	*/
-	private function send($submission, $config)
+
+	private function sendEmails($submission, $config)
 	{
 		if (array_get($this->config, 'master_killswitch')) return;
 
 		$email = array_get($config, 'email', false);
 
-		if ($email) {
-			$attributes = array_intersect_key($email, array_flip(Email::$allowed));
-
-			if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
-				$automagic_email = $this->buildAutomagicEmail($submission);
-				$attributes['html'] = $automagic_email['html'];
-				$attributes['text'] = $automagic_email['text'];
-			}
-
-			if ($html_template = array_get($email, 'html_template', false)) {
-				$attributes['html'] = Theme::getTemplate($html_template);
-			}
-
-			if ($text_template = array_get($email, 'text_template', false)) {
-				$attributes['text'] = Theme::getTemplate($text_template);
-			}
-
-			/*
-			|--------------------------------------------------------------------------
-			| Parse all fields
-			|--------------------------------------------------------------------------
-			|
-			| All email settings are parsed with the form data, allowing you, for
-			| example, to send an email to a submitted email address.
-			|
-			|
-			*/
-			$globals = Statamic::loadAllConfigs();
-
-			foreach ($attributes as $key => $value) {
-				$attributes[$key] = Parse::template($value, $submission, array('statamic_view', 'callback'), $globals);
-			}
-
-			$attributes['email_handler']     = array_get($config, 'email_handler', false);
-			$attributes['email_handler_key'] = array_get($config, 'email_handler_key', false);
-
-			Email::send($attributes);
+		// Single email
+		if ($email && isset($email['to'])) {
+			$this->send($submission, $email, $config);
 		}
+		// Multiple emails
+		else {
+			foreach ($email as $e) {
+				$this->send($submission, $e, $config);
+			}
+		}
+	}
+
+	/**
+	* Send a notification/response email
+	*
+	* @param array $submission Array of submitted values
+	* @param array $email Array of email config values
+	* @param array $config Array of config values
+	*/
+	private function send($submission, $email, $config)
+	{
+
+		$attributes = array_intersect_key($email, array_flip(Email::$allowed));
+
+		if (array_get($email, 'automagic') || array_get($email, 'automatic')) {
+			$automagic_email = $this->buildAutomagicEmail($submission);
+			$attributes['html'] = $automagic_email['html'];
+			$attributes['text'] = $automagic_email['text'];
+		}
+
+		if ($html_template = array_get($email, 'html_template', false)) {
+			$attributes['html'] = Theme::getTemplate($html_template);
+		}
+
+		if ($text_template = array_get($email, 'text_template', false)) {
+			$attributes['text'] = Theme::getTemplate($text_template);
+		}
+
+		/*
+		|--------------------------------------------------------------------------
+		| Parse all fields
+		|--------------------------------------------------------------------------
+		|
+		| All email settings are parsed with the form data, allowing you, for
+		| example, to send an email to a submitted email address.
+		|
+		|
+		*/
+
+		foreach ($attributes as $key => $value) {
+			$attributes[$key] = Parse::template($value, $submission);
+		}
+
+		$attributes['email_handler']     = array_get($config, 'email_handler', null);
+		$attributes['email_handler_key'] = array_get($config, 'email_handler_key', null);
+
+		Email::send($attributes);
 	}
 
 	/**
