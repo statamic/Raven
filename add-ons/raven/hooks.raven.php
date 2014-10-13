@@ -557,10 +557,10 @@ class Hooks_raven extends Hooks {
 		|
 		|
 		*/
-
-		foreach ($attributes as $key => $value) {
-			$attributes[$key] = Parse::template($value, $submission);
-		}
+		
+		array_walk_recursive($attributes, function(&$value, $key) use ($submission) {
+			$value = Parse::template($value, $submission);
+		});
 
 		$attributes['email_handler']     = array_get($config, 'email_handler', null);
 		$attributes['email_handler_key'] = array_get($config, 'email_handler_key', null);
