@@ -564,6 +564,7 @@ class Hooks_raven extends Hooks {
 
 		$attributes['email_handler']     = array_get($config, 'email_handler', null);
 		$attributes['email_handler_key'] = array_get($config, 'email_handler_key', null);
+		$attributes['smtp']              = array_get($config, 'smtp', null);
 
 		Email::send($attributes);
 	}
