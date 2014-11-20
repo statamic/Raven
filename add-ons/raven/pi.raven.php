@@ -98,7 +98,7 @@ class Plugin_raven extends Plugin {
 
 		$html .= "</form>";
 
-		return Parse::Template($html, $data);
+		return Parse::template($html, $data, array('statamic_view', 'callback'), $this->context);
 
 	}
 
