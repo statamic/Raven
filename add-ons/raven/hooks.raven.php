@@ -321,15 +321,10 @@ class Hooks_raven extends Hooks {
 
 		if ($success) {
 
-
 			if ($entry = array_get($hidden, 'edit')) {
 				$this->completeEdit($submission, $config, $entry);
 			} else {
-				try {
-					$this->completeNew($submission, $config, $formset_name);
-				} catch (Exception $e) {
-					throw new Exception($e->getMessage());
-				}
+				$this->completeNew($submission, $config, $formset_name);
 			}
 
 			/*
