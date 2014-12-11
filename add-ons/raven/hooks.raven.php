@@ -321,34 +321,15 @@ class Hooks_raven extends Hooks {
 
 		if ($success) {
 
-			// Akismet?
-			$is_spam = false;
-			
-			$akismet = array_get($config, 'akismet');
-			if ($akismet && array_get($config, 'akismet_api_key')) {
-				$is_spam = $this->tasks->akismetCheck(array(
-					'permalink'            => URL::makeFull(URL::getCurrent()),
-					'comment_type'         => $formset_name,
-					'comment_author'       => array_get($submission, array_get($akismet, 'author')),
-					'comment_author_email' => array_get($submission, array_get($akismet, 'email')),
-					'comment_author_url'   => array_get($submission, array_get($akismet, 'url')),
-					'comment_content'      => array_get($submission, array_get($akismet, 'content'))
-				));
-			}
 
-			// Shall we save?
-			if (array_get($config, 'submission_save_to_file', false) === true) {
-				$file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
-				$file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
-
-				$file_prefix = ($is_spam) ? '_' . $file_prefix : $file_prefix;
-
-				$this->save($submission, $config, $config['submission_save_path'], $is_spam);
-			}
-
-			// Shall we send?
-			if ( ! $is_spam && array_get($config, 'send_notification_email', false) === true) {
-				$this->sendEmails($submission, $config);
+			if ($entry = array_get($hidden, 'edit')) {
+				$this->completeEdit($submission, $config, $entry);
+			} else {
+				try {
+					$this->completeNew($submission, $config, $formset_name);
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
 			}
 
 			/*
@@ -373,6 +354,46 @@ class Hooks_raven extends Hooks {
 			$this->flash->set('errors', $errors);
 			$this->flash->set('old_values', $_POST);
 			URL::redirect(URL::format($error_return));
+		}
+	}
+
+	private function completeEdit($submission, $config, $entry)
+	{
+		$content = Content::get($entry);
+		$file_content = File::buildContent($submission, '');
+		File::put($content['_file'], $file_content);
+	}
+
+	private function completeNew($submission, $config, $formset_name)
+	{
+		// Akismet?
+		$is_spam = false;
+
+		$akismet = array_get($config, 'akismet');
+		if ($akismet && array_get($config, 'akismet_api_key')) {
+			$is_spam = $this->tasks->akismetCheck(array(
+				'permalink'            => URL::makeFull(URL::getCurrent()),
+				'comment_type'         => $formset_name,
+				'comment_author'       => array_get($submission, array_get($akismet, 'author')),
+				'comment_author_email' => array_get($submission, array_get($akismet, 'email')),
+				'comment_author_url'   => array_get($submission, array_get($akismet, 'url')),
+				'comment_content'      => array_get($submission, array_get($akismet, 'content'))
+			));
+		}
+
+		// Shall we save?
+		if (array_get($config, 'submission_save_to_file', false) === true) {
+			$file_prefix = Parse::template(array_get($config, 'file_prefix', ''), $submission);
+			$file_suffix = Parse::template(array_get($config, 'file_suffix', ''), $submission);
+
+			$file_prefix = ($is_spam) ? '_' . $file_prefix : $file_prefix;
+
+			$this->save($submission, $config, $config['submission_save_path'], $is_spam);
+		}
+
+		// Shall we send?
+		if ( ! $is_spam && array_get($config, 'send_notification_email', false) === true) {
+			$this->sendEmails($submission, $config);
 		}
 	}
 
