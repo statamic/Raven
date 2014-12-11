@@ -44,6 +44,8 @@ class Plugin_raven extends Plugin {
 			if (count($old_values) == 0) {
 				throw new FatalException('Invalid URL for editing');
 			}
+
+			$entry_hash = Helper::encrypt($edit);
 		}
 
 		// Merge old values
@@ -88,7 +90,7 @@ class Plugin_raven extends Plugin {
 		$html .= "<input type='hidden' name='hidden[error_return]' value='{$error_return}' />\n";
 
 		if ($edit) {
-			$html .= "<input type='hidden' name='hidden[edit]' value='{$edit}' />\n";
+			$html .= "<input type='hidden' name='hidden[edit]' value='{$entry_hash}' />\n";
 		}
 
 		/*

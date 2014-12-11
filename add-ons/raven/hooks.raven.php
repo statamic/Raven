@@ -354,7 +354,7 @@ class Hooks_raven extends Hooks {
 
 	private function completeEdit($submission, $config, $entry)
 	{
-		$content = Content::get($entry);
+		$content = Content::get(Helper::decrypt($entry));
 		$file_content = File::buildContent($submission, '');
 		File::put($content['_file'], $file_content);
 	}
