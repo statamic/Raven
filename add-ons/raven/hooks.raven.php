@@ -355,6 +355,12 @@ class Hooks_raven extends Hooks {
 	private function completeEdit($submission, $config, $entry)
 	{
 		$content = Content::get(Helper::decrypt($entry));
+
+		// Bail if the content doesn't exist. Someone tweaked it. Tsk tsk.
+		if ( ! count($content)) {
+			return;
+		}
+
 		$file_content = File::buildContent($submission, '');
 		File::put($content['_file'], $file_content);
 	}
