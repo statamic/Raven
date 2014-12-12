@@ -361,8 +361,14 @@ class Hooks_raven extends Hooks {
 			return;
 		}
 
+		// Update the entry
 		$file_content = File::buildContent($submission, '');
 		File::put($content['_file'], $file_content);
+		
+		// Shall we send?
+		if (array_get($config, 'send_notification_email', false) === true) {
+			$this->sendEmails($submission, $config, 'update');
+		}
 	}
 
 	private function completeNew($submission, $config, $formset_name)
@@ -522,24 +528,30 @@ class Hooks_raven extends Hooks {
 	*
 	* @param array  $submission  Array of submitted values
 	* @param array  $config  Array of config values
+	* @param string $event  Type of emails to send. ie. Create or Update
 	* @return void
 	*/
 
-	private function sendEmails($submission, $config)
+	private function sendEmails($submission, $config, $event = 'create')
 	{
 		if (array_get($this->config, 'master_killswitch')) return;
 
-		$email = array_get($config, 'email', false);
+		// No need to continue if there is no email set
+		if ( ! $email = array_get($config, 'email', false)) return;
 
-		// Single email
+		// If there's a single email config, turn it into an array anyway
 		if ($email && isset($email['to'])) {
-			$this->send($submission, $email, $config);
+			$email = array($email);
 		}
-		// Multiple emails
-		else {
-			foreach ($email as $e) {
-				$this->send($submission, $e, $config);
-			}
+
+		// Only use the appropriate email event - ie. Create or Update
+		$email = array_filter($email, function($val) use ($event) {
+			return (array_get($val, 'on', 'create') == $event);
+		});
+
+		// Send emails
+		foreach ($email as $e) {
+			$this->send($submission, $e, $config);
 		}
 	}
 
