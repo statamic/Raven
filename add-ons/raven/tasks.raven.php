@@ -99,6 +99,9 @@ class Tasks_raven extends Tasks
 		$files = array();
 		foreach ($matches as $file) {
 
+			// Ignore page.md
+			if ($file->getFilename() == 'page.md') continue;
+
 			$file_data = Parse::yaml($file->getContents());
 			$file_data['datestamp'] = date(array_get($this->config, 'datestamp_format', "m/d/Y"), $file->getMTime());
 			
