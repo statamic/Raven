@@ -79,10 +79,16 @@
               <?php foreach ($fields as $field => $name): ?>
                 <td>
                   <?php $val = array_get($file, 'fields:'.$field); ?>
-                  <?php if (is_array($val)): ?>
-                    <?php echo implode($val, ', '); ?>
-                  <?php else: ?>
-                    <?php echo $val ?>
+                  <?php if ($field == $edit): ?>
+                    <a href="/<?php echo Config::get('admin_path') . '.php/publish?path=' . array_get($file, 'meta:edit_path') . '&return=' . URL::getCurrent() ?>">
+                  <?php endif ?>
+                    <?php if (is_array($val)): ?>
+                      <?php echo implode($val, ', '); ?>
+                    <?php else: ?>
+                      <?php echo $val ?>
+                    <?php endif ?>
+                  <?php if ($field == $edit): ?>
+                    </a>
                   <?php endif ?>
                 </td>
               <?php endforeach ?>
