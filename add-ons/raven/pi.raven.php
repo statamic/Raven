@@ -4,7 +4,7 @@ class Plugin_raven extends Plugin {
 
 	public $meta = array(
 		'name'       => 'Raven',
-		'version'    => '2.0.4',
+		'version'    => '2.1.0',
 		'author'     => 'Statamic',
 		'author_url' => 'http://statamic.com'
 	);
