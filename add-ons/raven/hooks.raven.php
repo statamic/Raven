@@ -354,12 +354,19 @@ class Hooks_raven extends Hooks {
 
 	private function completeEdit($submission, $config, $entry)
 	{
-		$content = Content::get(Helper::decrypt($entry));
+		$content_set = ContentService::getContentByURL(Helper::decrypt($entry))->extract();
 
 		// Bail if the content doesn't exist. Someone tweaked it. Tsk tsk.
-		if ( ! count($content)) {
+		if ( ! count($content_set)) {
 			return;
 		}
+
+		// Get front-matter from existing submission
+		$content = current($content_set);
+		$yaml = YAML::parseFile($content['_file']);
+
+		// MERGE!@#!
+		$submission = array_merge($submission, $yaml);
 
 		// Update the entry
 		$file_content = File::buildContent($submission, '');
