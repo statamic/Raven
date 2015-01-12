@@ -52,7 +52,7 @@ class Plugin_raven extends Plugin {
 		$old_values = array_merge($this->flash->get('old_values', array()), $old_values);
 
 		// Sanitize data before returning it for display
-		$old_values = array_map('htmlspecialchars', $old_values);
+		$old_values = array_map_deep($old_values, 'htmlspecialchars');
 
 		// Set old values to re-populate the form
 		$data = array();
