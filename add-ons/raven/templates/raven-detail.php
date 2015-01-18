@@ -30,7 +30,7 @@
       </li>
     </ul>
   </div>
-  
+
   <?php if ($metrics): ?>
   <div class="section">
     <table class="simple-table metrics">
@@ -58,7 +58,7 @@
     </table>
   </div>
   <?php endif ?>
-  
+
   <form action="<?php echo $app->urlFor('raven') . '/' . $formset['name'] . '/batch' ?>" method="POST">
     <div class="section">
       <table class="simple-table sortable">
@@ -72,6 +72,7 @@
         </thead>
         <tbody>
           <?php foreach ($files as $file): ?>
+            <?php if (basename($file["meta"]["path"]) == 'page.md') continue; ?>
             <tr>
               <td class="checkbox-col">
                 <input type="checkbox" name="files[]" value="<?php echo array_get($file, 'meta:path') ?>" data-bind="checked: selectedFiles" >
