@@ -366,7 +366,7 @@ class Hooks_raven extends Hooks {
 		$yaml = YAML::parseFile($content['_file']);
 
 		// MERGE!@#!
-		$submission = array_merge($submission, $yaml);
+		$submission = array_merge($yaml, $submission);
 
 		// Update the entry
 		$file_content = File::buildContent($submission, '');
