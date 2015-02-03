@@ -159,6 +159,24 @@ class Hooks_raven extends Hooks {
 
 		/*
 		|--------------------------------------------------------------------------
+		| Add Files to POST
+		|--------------------------------------------------------------------------
+		|
+		| Files are people too. Well, no, but they should at least be considered
+		| fields, right? Treating files as fields will make our job easier.
+		|
+		*/
+
+		foreach ($_FILES as $name => $file) {
+			if ($file['success']) {
+				// Set their submission value to true for now.
+				// This will get updated when/if the file is actually uploaded.
+				$submission[$name] = true;
+			}
+		}
+
+		/*
+		|--------------------------------------------------------------------------
 		| Grab formset and collapse settings
 		|--------------------------------------------------------------------------
 		|
