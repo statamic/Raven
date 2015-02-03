@@ -279,7 +279,9 @@ class Hooks_raven extends Hooks {
 			$upload_destination = array_get($config, 'upload_destination');
 
 			foreach ($files as $name => $file) {
-				$submission[$name] = File::upload($file, $upload_destination);
+				if ($file['success']) {
+					$submission[$name] = File::upload($file, $upload_destination);
+				}
 			}
 		}
 
