@@ -619,7 +619,7 @@ class Hooks_raven extends Hooks {
 		|
 		*/
 
-		$globals = Statamic::loadAllConfigs();
+		$globals = Config::getAll();
 		
 		array_walk_recursive($attributes, function(&$value, $key) use ($submission, $globals) {
 			$value = Parse::contextualTemplate($value, $submission, $globals);
