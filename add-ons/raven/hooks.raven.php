@@ -618,9 +618,11 @@ class Hooks_raven extends Hooks {
 		|
 		|
 		*/
+
+		$globals = Statamic::loadAllConfigs();
 		
-		array_walk_recursive($attributes, function(&$value, $key) use ($submission) {
-			$value = Parse::template($value, $submission);
+		array_walk_recursive($attributes, function(&$value, $key) use ($submission, $globals) {
+			$value = Parse::contextualTemplate($value, $submission, $globals);
 		});
 
 		$attributes['email_handler']     = array_get($config, 'email_handler', null);
