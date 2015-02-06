@@ -396,6 +396,9 @@ class Hooks_raven extends Hooks {
 		if (array_get($config, 'send_notification_email', false) === true) {
 			$this->sendEmails($submission, $config, 'update');
 		}
+
+		// Save data to flash for use in raven:submission
+		$this->flash->set('submission', $submission);
 	}
 
 	private function completeNew($submission, $config, $formset_name)
@@ -429,6 +432,9 @@ class Hooks_raven extends Hooks {
 		if ( ! $is_spam && array_get($config, 'send_notification_email', false) === true) {
 			$this->sendEmails($submission, $config);
 		}
+
+		// Save data to flash for use in raven:submission
+		$this->flash->set('submission', $submission);
 	}
 
 	/**

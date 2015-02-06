@@ -124,6 +124,20 @@ class Plugin_raven extends Plugin {
 	}
 
 	/**
+	 * Allows you to output data from the submission
+	 *
+	 * @return string
+	 **/
+	public function submission()
+	{
+		if ( ! $this->flash->exists('submission')) {
+			return;
+		}
+
+		return Parse::contextualTemplate($this->content, $this->flash->get('submission'), $this->context);
+	}
+
+	/**
 	* Returns true or false based on form success
 	*
 	* Set in hooks.raven.php -> process()
