@@ -222,6 +222,22 @@ class Hooks_raven extends Hooks {
 
 		/*
 		|--------------------------------------------------------------------------
+		| Honeypot
+		|--------------------------------------------------------------------------
+		|
+		| Spam sucks. Let's catch them. If the honeypot field is in the submission
+		| we'll just stop right here.
+		|
+		*/
+
+		$honeypot_field = array_get($config, 'honeypot', 'honeypot');
+
+		if (array_get($submission, $honeypot_field)) {
+			URL::redirect(URL::format($return));
+		}
+
+		/*
+		|--------------------------------------------------------------------------
 		| Allowed fields
 		|--------------------------------------------------------------------------
 		|
