@@ -211,9 +211,12 @@ class Hooks_raven extends Hooks {
 		| our form inputs.
 		|
 		*/
+		$allowed_fields   = array_get($formset, 'allowed');
+		$required_fields  = array_get($formset, 'required');
 
-		$allowed_fields   = array_flip(array_get($formset, 'allowed', array()));
-		$required_fields  = array_flip(array_get($formset, 'required', array()));
+		$allowed_fields  = is_array($allowed_fields) ? array_flip($allowed_fields) : array();
+		$required_fields = is_array($required_fields) ? array_flip($required_fields) : array();
+
 		$validation_rules = isset($formset['validate']) ? $formset['validate'] : array();
 		$messages         = isset($formset['messages']) ? $formset['messages'] : array();
 		$referrer         = Request::getReferrer();
@@ -356,6 +359,18 @@ class Hooks_raven extends Hooks {
 
 
 		if ($success) {
+
+			/*
+			|--------------------------------------------------------------------------
+			| Hook: Post Process
+			|--------------------------------------------------------------------------
+			|
+			| Allow post-processing by other add-ons with the ability to modify the 
+			| submitted data.
+			|
+			*/
+
+			$submission = Hook::run('raven', 'post_process', 'replace', $submission, $submission);
 
 			if ($entry = array_get($hidden, 'edit')) {
 				$this->completeEdit($submission, $config, $entry);
