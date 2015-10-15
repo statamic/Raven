@@ -567,9 +567,25 @@ class Hooks_raven extends Hooks {
 		if ($EXT === 'json') {
 			File::put($filename, json_encode($data));
 		} else {
-			File::put($filename, Yaml::dump($data) . '---');
+			File::put($filename, $this->buildFileContents($data));
 		}
 
+	}
+
+	private function buildFileContents($data)
+	{
+		// If there's a `content` key, we will separate that out.
+		if ($content = array_get($data, 'content')) {
+			unset($data['content']);
+		}
+
+		$str = Yaml::dump($data) . '---';
+
+		if ($content) {
+			$str .= "\n" . $content;
+		}
+
+		return $str;
 	}
 
 	/**
