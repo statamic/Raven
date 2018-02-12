@@ -1,4 +1,4 @@
-# Raven ![Statamic 1.0](https://img.shields.io/badge/statamic-1.0-grey.svg?style=flat-square)
+# Raven ![Statamic 1.0](https://img.shields.io/badge/statamic-1.0-red.svg?style=flat-square)
 A flexible form addon for Statamic v1.
 
 ## Installing
