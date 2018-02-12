@@ -1,4 +1,5 @@
-# Raven: The only form solution you'll ever need.
+# Raven ![Statamic 1.0](https://img.shields.io/badge/statamic-1.0-grey.svg?style=flat-square)
+A flexible form addon for Statamic v1.
 
 ## Installing
 1. Drop the add-ons/raven folder into the `/_add-ons/` folder.
