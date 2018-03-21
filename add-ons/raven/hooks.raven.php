@@ -314,6 +314,8 @@ class Hooks_raven extends Hooks {
 
 			foreach ($files as $name => $file) {
 				if ($file['success']) {
+					$file['name'] = Slug::make($file['name'], array('maintain_case' => true));
+					
 					$submission[$name] = File::upload($file, $upload_destination);
 				}
 			}
